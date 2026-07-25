@@ -1,4 +1,3 @@
 User-agent: *
 Allow: /
-
-Sitemap: https://boystomencamp.com/sitemap.xml
+Sitemap: https://potentialunexplored.com/sitemap.xml
