@@ -212,3 +212,27 @@ document.addEventListener('click', function (e) {
     if (e.target === m) closeModal(m.id);
   });
 });
+
+/* Keyboard accessibility for modals: Escape closes, focus moves into the
+   modal on open and returns to the button that opened it on close */
+var lastFocusedBeforeModal = null;
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape' || e.key === 'Esc') {
+    var openModal = document.querySelector('.pay-modal.open');
+    if (openModal) closeModal(openModal.id);
+  }
+});
+(function () {
+  var origBookEnquiry = bookEnquiry;
+  bookEnquiry = function (title) {
+    lastFocusedBeforeModal = document.activeElement;
+    origBookEnquiry(title);
+    var firstField = document.getElementById('bo-name');
+    if (firstField) setTimeout(function () { firstField.focus(); }, 50);
+  };
+})();
+var origCloseModal = closeModal;
+closeModal = function (id) {
+  origCloseModal(id);
+  if (lastFocusedBeforeModal) { lastFocusedBeforeModal.focus(); lastFocusedBeforeModal = null; }
+};

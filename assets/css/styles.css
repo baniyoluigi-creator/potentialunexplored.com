@@ -443,10 +443,14 @@ footer { background: #111D17; border-top: 3px solid var(--gold); padding: 46px 0
   .camp-body { grid-template-columns: 1fr; }
   .two-col { grid-template-columns: 1fr; }
 }
-@media (max-width: 640px) {
-  html { font-size: 16px; }
+/* Nav switches to the mobile hamburger menu earlier than other responsive
+   breakpoints, since 8 top-level items get visually cramped below ~1080px */
+@media (max-width: 1080px) {
   .nav-links { display: none; }
   .hamburger { display: block; }
+}
+@media (max-width: 640px) {
+  html { font-size: 16px; }
   section { padding: 56px 0; }
   .prog-card { grid-template-columns: 1fr; }
   .prog-card-icon { flex-direction: row; padding: 18px 22px; gap: 14px; justify-content: flex-start; }
