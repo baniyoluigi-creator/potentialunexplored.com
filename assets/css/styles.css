@@ -499,8 +499,13 @@ footer { background: #111D17; border-top: 3px solid var(--gold); padding: 46px 0
 .pay-modal-box {
   background: var(--white); border-radius: 14px; padding: 36px 40px;
   max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3); position: relative;
 }
+.pay-modal-close {
+  position: absolute; top: 14px; right: 18px; background: none; border: none;
+  font-size: 1.6rem; line-height: 1; color: var(--light); cursor: pointer;
+}
+.pay-modal-close:hover { color: var(--green); }
 .pay-modal-logo {
   display: inline-block; border-radius: 8px; padding: 6px 16px;
   font-family: Arial, sans-serif; font-size: 0.78rem; font-weight: 900;

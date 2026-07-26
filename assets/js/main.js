@@ -3,16 +3,34 @@
 function toggleMenu() { document.getElementById('mobileMenu').classList.toggle('open'); }
 function closeMenu() { document.getElementById('mobileMenu').classList.remove('open'); }
 
-/* Dropdown nav: hover works via CSS on desktop; this handles tap-to-open on touch/mobile */
-document.querySelectorAll('.nav-links li.has-dropdown > a, .mm-group-toggle').forEach(function (trigger) {
+/* Dropdown nav: hover works via CSS on desktop; this handles tap-to-open on touch/mobile
+   and keeps aria-expanded in sync for screen readers on both */
+document.querySelectorAll('.nav-links li.has-dropdown').forEach(function (li) {
+  var trigger = li.querySelector('a');
+  li.addEventListener('mouseenter', function () { trigger.setAttribute('aria-expanded', 'true'); });
+  li.addEventListener('mouseleave', function () { trigger.setAttribute('aria-expanded', 'false'); });
+  trigger.addEventListener('focus', function () { trigger.setAttribute('aria-expanded', 'true'); });
+  trigger.addEventListener('blur', function () { trigger.setAttribute('aria-expanded', 'false'); });
   trigger.addEventListener('click', function (e) {
     if (window.innerWidth <= 900) {
       e.preventDefault();
-      var li = trigger.closest('li') || trigger.closest('.mm-group');
       var wasOpen = li.classList.contains('open');
-      document.querySelectorAll('.has-dropdown.open, .mm-group.open').forEach(function (el) { el.classList.remove('open'); });
-      if (!wasOpen) li.classList.add('open');
+      document.querySelectorAll('.has-dropdown.open').forEach(function (el) {
+        el.classList.remove('open');
+        var t = el.querySelector('a');
+        if (t) t.setAttribute('aria-expanded', 'false');
+      });
+      if (!wasOpen) { li.classList.add('open'); trigger.setAttribute('aria-expanded', 'true'); }
     }
+  });
+});
+document.querySelectorAll('.mm-group-toggle').forEach(function (trigger) {
+  trigger.addEventListener('click', function (e) {
+    e.preventDefault();
+    var group = trigger.closest('.mm-group');
+    var wasOpen = group.classList.contains('open');
+    document.querySelectorAll('.mm-group.open').forEach(function (el) { el.classList.remove('open'); });
+    if (!wasOpen) group.classList.add('open');
   });
 });
 
@@ -38,7 +56,25 @@ document.querySelectorAll('a[href^="#"]').forEach(function (a) {
 function toggleExpand(btn) { btn.classList.toggle('open'); btn.nextElementSibling.classList.toggle('open'); }
 function toggleFaq(btn) { btn.classList.toggle('open'); btn.nextElementSibling.classList.toggle('open'); }
 function bookEnquiry(title) {
-  alert('To order ' + title + ', please WhatsApp us on +256 775 495 431 or email info@potentialunexplored.com. We will respond within 24 hours.');
+  var labelEl = document.getElementById('book-order-item-label');
+  var fieldEl = document.getElementById('book-order-item-field');
+  var subjectEl = document.getElementById('book-order-subject');
+  if (!labelEl) { alert('To order ' + title + ', please WhatsApp us on +256 775 495 431 or email info@potentialunexplored.com.'); return; }
+  labelEl.textContent = title;
+  fieldEl.value = title;
+  subjectEl.value = 'New Book/Course Order Enquiry: ' + title;
+  var modal = document.getElementById('modal-book-order');
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  var form = document.getElementById('book-order-form');
+  var nextField = form.querySelector('input[name="_next"]');
+  if (!nextField) {
+    nextField = document.createElement('input');
+    nextField.type = 'hidden';
+    nextField.name = '_next';
+    form.appendChild(nextField);
+  }
+  nextField.value = window.location.origin + window.location.pathname + '?success=true';
 }
 
 /* ── Registration hub: tabs + dropdown, synced ────────────────────── */
