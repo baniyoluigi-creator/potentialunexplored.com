@@ -1,40 +1,37 @@
-WHAT THIS DOES
---------------
-Restructures the PUL blog page into categories matching your core focus
-areas, and links the two sites together instead of duplicating content.
+WHAT'S IN THIS FOLDER (revised version)
+-----------------------------------------
+The same 9 blog posts as before, rewritten so each answer explores several
+different possible causes or approaches instead of a single narrow
+explanation, in a "sometimes it's this, sometimes it's that" structure,
+the same way the Boys to Men posts explore multiple reasons behind a
+parent's question.
 
-1. blog.html (for potentialunexplored.com repo root, replaces existing file)
-   - Category filter row at top: Leadership | Boys to Men | Team Building
-     (coming soon) | Sales & Customer Service (coming soon) | Life Readiness
-     (coming soon)
-   - "Leadership" section: your existing Heal to Lead entry, unchanged.
-   - "Boys to Men Mentorship Camp" section: all 25 parent-question posts
-     shown as teaser cards (title + short description). Each card links
-     OUT to the real, already-published post on boystomencamp.com/blog/,
-     opening in a new tab. Nothing is duplicated, so there's no duplicate
-     content issue and each post keeps ranking on its original domain.
-   - A "Browse all Boys to Men articles" button at the bottom of that
-     section, linking to boystomencamp.com/blog/.
+LEADERSHIP
+- how-do-i-build-strong-leaders-in-my-organisation.html
+- why-do-good-employees-struggle-as-managers.html
+- what-is-self-leadership-and-why-does-it-matter.html
 
-2. btm-blog-index/index.html (for boystomencamp.com repo, replaces
-   /blog/index.html)
-   - Same Journal page as before, with one addition: a closing banner
-     inviting readers to browse the Potential Unexplored Ltd blog for
-     Leadership, Team Building, and Life Readiness content, linking to
-     potentialunexplored.com/blog.html in a new tab.
+TEAM BUILDING
+- what-makes-a-team-building-event-actually-work.html
+- how-do-i-choose-the-right-team-building-activity-for-my-staff.html
+- why-does-my-team-not-trust-each-other.html
 
-HOW TO UPLOAD
--------------
-potentialunexplored.com repo: replace the root blog.html with the one in
-this folder.
+SALES & CUSTOMER SERVICE
+- how-do-i-improve-my-sales-teams-performance.html
+- what-is-customer-service-excellence-and-why-does-it-matter.html
+- how-do-i-train-my-staff-to-handle-difficult-customers.html
 
-boystomencamp.com repo: replace /blog/index.html with the
-btm-blog-index/index.html file in this folder.
+Canonical tags, Open Graph/Twitter image tags, and FAQPage schema are
+still in place on all 9, unchanged from the last round.
 
-Both are drop-in replacements, no other files need to change, no downtime.
+blog.html and sitemap.xml are also included and unchanged in structure,
+just refreshed with the new descriptions.
 
-AS TEAM BUILDING / SALES / LIFE READINESS CONTENT IS WRITTEN LATER, the
-same "coming soon" category slots in blog.html are ready, just add a new
-<section id="team-building">...</section> the same way the Leadership and
-Boys to Men sections are built, and turn its pill in the category row into
-a working #team-building link.
+HOW TO UPLOAD (GitHub, potentialunexplored.com repo)
+------------------------------------------------------
+1. Upload all 9 .html files to the ROOT of the repo, replacing the earlier
+   versions if you already uploaded them.
+2. Replace blog.html at the repo root with the one here.
+3. Replace sitemap.xml at the repo root with the one here (only needed if
+   you have not already uploaded the previous sitemap update).
+4. Commit / push. No downtime.
