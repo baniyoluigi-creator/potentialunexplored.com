@@ -1,3 +1,21 @@
+/* ---------------------------------------------------------------
+   Form delivery: Google Sheet (no monthly limit)
+   Paste the Google Apps Script web app link between the quotes below
+   (see form-backend/SETUP-GOOGLE-SHEET-FORMS.txt). While it is empty,
+   the forms keep using Formspree as before.
+   --------------------------------------------------------------- */
+var SHEET_ENDPOINT = '';
+
+function postSmallForm(fields, formKey) {
+  var body = new URLSearchParams(fields);
+  if (SHEET_ENDPOINT) {
+    body.append('_form', formKey);
+    body.append('_page', location.pathname);
+    return fetch(SHEET_ENDPOINT, { method: 'POST', mode: 'no-cors', body: body }).catch(function (err) { console.warn('Form post failed:', err); });
+  }
+  return fetch('https://formspree.io/f/xwvdqygk', { method: 'POST', headers: { 'Accept': 'application/json', 'Content-Type': 'application/x-www-form-urlencoded' }, body: body.toString() }).catch(function (err) { console.warn('Form post failed:', err); });
+}
+
 /* Potential Unexplored Ltd — shared site JS */
 
 function toggleMenu() { document.getElementById('mobileMenu').classList.toggle('open'); }
@@ -173,9 +191,9 @@ function submitMoMo(provider) {
 
   var formName = provider === 'mtn' ? 'MTN MoMo Registration' : 'Airtel Money Registration';
   var phoneField = provider === 'mtn' ? 'mtn_number' : 'airtel_number';
-  var body = new URLSearchParams({ 'form-name': formName, 'full_name': name, 'programme': prog, 'amount': amt });
-  body.append(phoneField, phone);
-  fetch('https://formspree.io/f/xwvdqygk', { method: 'POST', headers: { 'Accept': 'application/json', 'Content-Type': 'application/x-www-form-urlencoded' }, body: body.toString() }).catch(function (err) { console.warn('Form post failed:', err); });
+  var fields = { 'form-name': formName, 'full_name': name, 'programme': prog, 'amount': amt, '_subject': 'Payment notice: ' + formName };
+  fields[phoneField] = phone;
+  postSmallForm(fields, 'payments');
 
   var modal = document.getElementById('modal-' + provider);
   var existing = modal.querySelector('.pin-prompt');
@@ -198,8 +216,7 @@ function confirmBankTransfer() {
   var contact = document.getElementById('bank-contact').value.trim();
   var prog = document.getElementById('bank-prog').value.trim();
   if (!name) { alert('Please enter your full name before confirming.'); return; }
-  var body = new URLSearchParams({ 'form-name': 'Bank Transfer Registration', 'full_name': name, 'contact': contact, 'programme': prog });
-  fetch('https://formspree.io/f/xwvdqygk', { method: 'POST', headers: { 'Accept': 'application/json', 'Content-Type': 'application/x-www-form-urlencoded' }, body: body.toString() }).catch(function (err) { console.warn('Form post failed:', err); });
+  postSmallForm({ 'form-name': 'Bank Transfer Registration', 'full_name': name, 'contact': contact, 'programme': prog, '_subject': 'Payment notice: Bank Transfer Registration' }, 'payments');
   var waMsg = 'Hello%2C%20I%20have%20made%20a%20bank%20transfer%20payment%20for%20' +
     encodeURIComponent(prog || 'a Potential Unexplored programme') +
     '.%20My%20name%20is%20' + encodeURIComponent(name) +
@@ -236,3 +253,57 @@ closeModal = function (id) {
   origCloseModal(id);
   if (lastFocusedBeforeModal) { lastFocusedBeforeModal.focus(); lastFocusedBeforeModal = null; }
 };
+
+
+/* ---------------------------------------------------------------
+   Website forms to Google Sheet. Active only once SHEET_ENDPOINT is set.
+   Spam guard: hidden trap field and a short minimum fill time.
+   --------------------------------------------------------------- */
+document.addEventListener('DOMContentLoaded', function () {
+  if (!SHEET_ENDPOINT) return;
+  var THANKS = {
+    'mep': ['Thank you. Your application has been received.', 'We will confirm your place within 24 hours. Please send your payment proof on WhatsApp to +256 775 495 431.'],
+    'girls-rising': ['Thank you. You are on the waiting list.', 'We will contact you as soon as the next intake date is confirmed.'],
+    'orders': ['Thank you. Your request has been received.', 'We will confirm availability and payment options within 24 hours.']
+  };
+  var DEFAULT_THANKS = ['Thank you. Your message has been received.', 'We will get back to you within 24 hours. For anything urgent, WhatsApp us on +256 775 495 431.'];
+
+  document.querySelectorAll('form[action*="formspree.io"]').forEach(function (form) {
+    var keyField = form.querySelector('input[name="_form"]');
+    if (!keyField) return;
+    var openedAt = Date.now();
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var trap = form.querySelector('input[name="_gotcha"], input[name="bot-field"]');
+      if (trap && trap.value) return;
+      if (Date.now() - openedAt < 5000) {
+        alert('Please take a moment to check your details, then press Submit again.');
+        openedAt = Date.now() - 5000;
+        return;
+      }
+      var button = form.querySelector('button[type="submit"]');
+      var buttonText = button ? button.innerHTML : '';
+      if (button) { button.disabled = true; button.textContent = 'Sending...'; }
+
+      var data = new FormData(form);
+      var body = new URLSearchParams();
+      data.forEach(function (value, key) { body.append(key, value); });
+      body.append('_page', location.pathname);
+
+      fetch(SHEET_ENDPOINT, { method: 'POST', mode: 'no-cors', body: body })
+        .then(function () {
+          var msg = THANKS[keyField.value] || DEFAULT_THANKS;
+          var box = document.createElement('div');
+          box.setAttribute('role', 'status');
+          box.style.cssText = 'background:#FFF8E8;border:1px solid var(--gold);border-radius:8px;padding:22px 24px;margin:16px 0;';
+          box.innerHTML = '<h3 style="color:var(--green);margin-bottom:8px;">' + msg[0] + '</h3><p style="font-family:Arial,sans-serif;font-size:0.92rem;color:var(--mid);">' + msg[1] + '</p>';
+          form.parentNode.replaceChild(box, form);
+          box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        })
+        .catch(function () {
+          if (button) { button.disabled = false; button.innerHTML = buttonText; }
+          alert('Sorry, your details could not be sent. Please check your internet connection and try again, or message us on WhatsApp on +256 775 495 431.');
+        });
+    });
+  });
+});

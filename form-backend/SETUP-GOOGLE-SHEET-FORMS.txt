@@ -1,0 +1,68 @@
+SETUP: SENDING WEBSITE FORMS TO A GOOGLE SHEET
+Potential Unexplored Ltd (potentialunexplored.com)
+
+This replaces Formspree. There is no monthly limit. Every application and
+enquiry is saved in a Google Sheet, one tab per form, and you also get an
+email. It takes about 10 minutes, once.
+
+Until you finish this, the forms keep using Formspree as before, so nothing
+breaks while you set it up.
+
+
+PART 1: Create the sheet and the script
+
+1. Sign in to Google with baniyoluigi@gmail.com and open sheets.new
+2. Name the sheet "PUL Applications and Enquiries".
+3. Click Extensions, then Apps Script.
+4. Delete everything in the editor.
+5. Open google-apps-script.gs from this folder, copy ALL of it, and paste
+   it into the editor.
+6. Click the save icon.
+
+
+PART 2: Publish it
+
+1. Click Deploy (top right), then New deployment.
+2. Click the small gear icon next to "Select type" and choose Web app.
+3. Set these three things:
+      Description:      PUL website forms
+      Execute as:       Me
+      Who has access:   Anyone
+4. Click Deploy.
+5. Authorise access when Google asks. Click Advanced, then
+   "Go to (project name) (unsafe)", then Allow. This is normal for your own
+   script. It only writes to this sheet and sends you email.
+6. Copy the Web app URL. It starts with https://script.google.com/macros/s/
+   and ends with /exec
+
+
+PART 3: Connect it to the website
+
+Send the Web app URL to Claude and ask it to switch the PUL forms on.
+Or open assets/js/main.js on GitHub (baniyoluigi-creator/potentialunexplored.com),
+find this line near the top:
+      var SHEET_ENDPOINT = '';
+and paste the URL between the quotes, then Commit changes.
+
+
+PART 4: Test it
+
+1. Wait about a minute for GitHub Pages to update.
+2. Send a test message from potentialunexplored.com/contact.html. Wait at
+   least 5 seconds before pressing Send.
+3. Check the sheet. A tab called "Contact Messages" appears with your test
+   entry, and an email arrives in your inbox.
+4. Test the MEP application form too. It goes to "MEP Applications".
+5. Delete the test rows afterwards.
+
+
+GOOD TO KNOW
+
+* To change the script later, use Deploy, then Manage deployments, then the
+  pencil icon, then Version: New version, then Deploy. The link stays the same.
+* To also send notices to info@potentialunexplored.com, put the addresses in
+  NOTIFY_EMAIL at the top of the script, separated by commas.
+* Free Gmail can send about 100 notification emails a day. Past that, entries
+  are still saved in the sheet and only the email is skipped.
+* New form fields appear in the sheet as new columns automatically.
+* Share the sheet with your team so they can follow up.
