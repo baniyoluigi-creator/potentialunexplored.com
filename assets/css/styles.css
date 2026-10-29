@@ -445,7 +445,7 @@ footer { background: #111D17; border-top: 3px solid var(--gold); padding: 46px 0
 }
 /* Nav switches to the mobile hamburger menu earlier than other responsive
    breakpoints, since 8 top-level items get visually cramped below ~1080px */
-@media (max-width: 1080px) {
+@media (max-width: 1260px) {
   .nav-links { display: none; }
   .hamburger { display: block; }
 }
