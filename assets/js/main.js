@@ -4,13 +4,27 @@
    (see form-backend/SETUP-GOOGLE-SHEET-FORMS.txt). While it is empty,
    the forms keep using Formspree as before.
    --------------------------------------------------------------- */
-var SHEET_ENDPOINT = '';
+var SHEET_ENDPOINT = 'https://script.google.com/macros/s/AKfycbz4TA60MMwRowFJujLeX_JA_v81z8s4cZI5kKACdZQ01kZDLO1ocpqF6EOyFMQp8XGY/exec';
+
+/* The receiving script files messages under 'contact' and everything else under 'apply'.
+   Each entry is also labelled so PUL forms can be told apart in the sheet. */
+var SHEET_FORM_TYPE = { 'contact': 'contact', 'support': 'contact', 'institutional': 'contact', 'mep': 'apply', 'girls-rising': 'apply', 'orders': 'apply', 'payments': 'apply' };
+var SHEET_FORM_LABEL = { 'contact': 'General enquiry', 'support': 'Support enquiry', 'institutional': 'Institutional enquiry', 'mep': 'MEP Masterclass application', 'girls-rising': 'Girls Rising waiting list', 'orders': 'Book or course order', 'payments': 'Payment notice' };
+function prepareSheetBody(body, key) {
+  var name = body.get('Full Name') || body.get('registrant_name') || body.get('full_name') || body.get('name') ||
+    (((body.get('first_name') || '') + ' ' + (body.get('last_name') || '')).trim());
+  if (name) body.set('Full Name', name);
+  body.set('Form', 'PUL website: ' + (SHEET_FORM_LABEL[key] || key));
+  body.set('_form', SHEET_FORM_TYPE[key] || 'apply');
+  body.set('_page', location.pathname);
+  return body;
+}
+
 
 function postSmallForm(fields, formKey) {
   var body = new URLSearchParams(fields);
   if (SHEET_ENDPOINT) {
-    body.append('_form', formKey);
-    body.append('_page', location.pathname);
+    prepareSheetBody(body, formKey);
     return fetch(SHEET_ENDPOINT, { method: 'POST', mode: 'no-cors', body: body }).catch(function (err) { console.warn('Form post failed:', err); });
   }
   return fetch('https://formspree.io/f/xwvdqygk', { method: 'POST', headers: { 'Accept': 'application/json', 'Content-Type': 'application/x-www-form-urlencoded' }, body: body.toString() }).catch(function (err) { console.warn('Form post failed:', err); });
@@ -288,7 +302,7 @@ document.addEventListener('DOMContentLoaded', function () {
       var data = new FormData(form);
       var body = new URLSearchParams();
       data.forEach(function (value, key) { body.append(key, value); });
-      body.append('_page', location.pathname);
+      prepareSheetBody(body, keyField.value);
 
       fetch(SHEET_ENDPOINT, { method: 'POST', mode: 'no-cors', body: body })
         .then(function () {
