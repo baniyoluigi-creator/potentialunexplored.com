@@ -131,24 +131,14 @@
           </div>
         </div>
 
-        <!-- Payment -->
+        <!-- Payment status (details are shown after you submit) -->
         <div class="reg-form-section">
-          <p class="reg-step-label">How will you pay?</p>
-          <div class="reg-pay-grid">
-            <label class="reg-pay-label"><input type="radio" name="payment_method" required value="MTN MoMo (+256 775 495 431)"><div class="reg-pay-box"><div class="reg-pay-icon" style="background:#FFCC00;color:#000;">MTN</div><p>MTN MoMo</p><small>+256 775 495 431</small></div></label>
-            <label class="reg-pay-label"><input type="radio" name="payment_method" value="Airtel Money (+256 740 132 573)"><div class="reg-pay-box"><div class="reg-pay-icon" style="background:#E40000;color:#fff;">AIR</div><p>Airtel Money</p><small>+256 740 132 573</small></div></label>
-            <label class="reg-pay-label" onclick="document.getElementById('mep-bank-box').style.display='block'"><input type="radio" name="payment_method" value="Bank Transfer (Centenary Bank)"><div class="reg-pay-box"><div class="reg-pay-icon" style="background:var(--green);color:var(--gold);">BANK</div><p>Bank Transfer</p><small>Centenary Bank</small></div></label>
+          <p class="reg-step-label">Have you already paid?</p>
+          <div class="reg-grid-2">
+            <div class="reg-field"><label class="reg-label">Payment status</label><select class="reg-input" name="Payment Status"><option>Not yet, I will pay after applying</option><option>Yes, I have paid the 50% instalment</option><option>Yes, I have paid in full</option></select></div>
+            <div class="reg-field"><label class="reg-label">Transaction ID (if you have paid)</label><input class="reg-input" type="text" name="Transaction ID" placeholder="Optional"></div>
           </div>
-          <p style="font-family:Arial,sans-serif;font-size:0.78rem;color:var(--mid);margin:-6px 0 14px;">For MTN MoMo and Airtel Money, you may send payment directly to the number shown, or use our merchant code (provided on confirmation).</p>
-          <div id="mep-bank-box" class="reg-bank-box" style="display:block;">
-            <strong>Centenary Bank Details</strong><br>Account: Potential Unexplored Ltd &nbsp;|&nbsp; A/C: 3100125782 &nbsp;|&nbsp; Branch: Wakiso &nbsp;|&nbsp; Swift: CDBAUGKA<br>
-            <span style="color:var(--gold);">Send proof to +256 775 495 431 (WhatsApp)</span>
-          </div>
-          <div class="reg-field" style="margin-top:14px;max-width:320px;">
-            <label class="reg-label">Amount you are paying now *</label>
-            <input class="reg-input" type="text" name="payment_amount" value="UGX 500,000 / USD 150" placeholder="e.g. UGX 250,000 (50% deposit)">
-            <p style="font-family:Arial,sans-serif;font-size:0.73rem;color:var(--mid);margin-top:5px;">Edit if you are paying the 50% deposit (UGX 250,000).</p>
-          </div>
+          <p style="font-family:Arial,sans-serif;font-size:0.78rem;color:var(--mid);margin-top:8px;">Payment is made into our Centenary Bank account only. After you submit, you will see how to pay, from your bank, MTN MoMo or Airtel Money.</p>
         </div>
 
         <!-- Comms -->
@@ -159,10 +149,77 @@
         </div>
 
         <div class="reg-submit-bar">
-          <div><p class="reg-submit-title">Submit your MEP application</p><p class="reg-submit-sub">We will confirm your place within 24 hours.</p></div>
+          <div><p class="reg-submit-title">Submit your MEP application</p><p class="reg-submit-sub">After you submit, you will see how to pay. We confirm your place within 24 hours of receiving your payment. <a href="pay.html" style="color:var(--gold);font-weight:700;">See how to pay</a></p></div>
           <button type="submit" class="reg-submit-btn">Submit Application &rarr;</button>
         </div>
       </form>
+      <div id="payPanel" hidden style="padding:0 28px 28px;">
+        <h3 class="reg-step-label" style="margin-top:8px;">Pay to secure your place</h3>
+        <div class="htp" id="how-to-pay">
+          <p class="htp-intro">Payment is by bank transfer or deposit. Not sure how to do it? Choose the way that suits you below and follow the simple steps. It takes only a few minutes.</p>
+          <div class="htp-booking"><b>Payment for your place</b><span id="htp-booking-text">MEP Masterclass fee is UGX 500,000 or USD 150. A 50% instalment (UGX 250,000 or USD 75) secures your place. The remaining 50% is paid within the first month of the programme.</span></div>
+          <div class="htp-account">
+            <div class="htp-bank-line"><span class="htp-bank-dot"></span>Centenary Bank, Wakiso Branch</div>
+            <div class="htp-row">
+              <div><span class="htp-label">Account name</span><strong id="htp-name">Potential Unexplored Limited</strong></div>
+              <button type="button" class="htp-copy" data-copy="htp-name">Copy</button>
+            </div>
+            <div class="htp-row">
+              <div><span class="htp-label">Account number</span><strong id="htp-acc" class="htp-big">3100125782</strong></div>
+              <button type="button" class="htp-copy" data-copy="htp-acc">Copy</button>
+            </div>
+          </div>
+          <div class="htp-tabs" role="tablist" aria-label="Choose how you will pay">
+            <button type="button" class="htp-tab" role="tab" aria-selected="true" data-tab="bank">From your bank</button>
+            <button type="button" class="htp-tab htp-mtn" role="tab" aria-selected="false" data-tab="mtn"><span class="htp-dot"></span>MTN MoMo</button>
+            <button type="button" class="htp-tab htp-airtel" role="tab" aria-selected="false" data-tab="airtel"><span class="htp-dot"></span>Airtel Money</button>
+          </div>
+          <div class="htp-panel" id="htp-bank">
+            <ol class="htp-steps">
+              <li>Open your bank app or visit your bank, or any Centenary Bank branch or agent.</li>
+              <li>Choose to send money to another bank account, or to make a deposit.</li>
+              <li>Enter the Centenary Bank account name and number shown above.</li>
+              <li>Enter the amount and confirm.</li>
+              <li>Keep your receipt or confirmation message. You will need it below.</li>
+            </ol>
+          </div>
+          <div class="htp-panel" id="htp-mtn" hidden>
+            <ol class="htp-steps">
+              <li>On your MTN line, dial <span class="htp-code">*165#</span></li>
+              <li>Choose <b>Financial Services</b>.</li>
+              <li>Choose <b>Bank Transfer</b> and select <b>Centenary Bank</b>.</li>
+              <li>Enter the account number shown above, then enter the amount.</li>
+              <li>Enter your MoMo PIN to confirm.</li>
+              <li>Wait for the MTN confirmation message and keep it. You will need it below.</li>
+            </ol>
+          </div>
+          <div class="htp-panel" id="htp-airtel" hidden>
+            <ol class="htp-steps">
+              <li>On your Airtel line, dial <span class="htp-code">*185#</span></li>
+              <li>Choose <b>Financial Services</b>, then <b>Banks</b>.</li>
+              <li>Select <b>Centenary Bank</b>. If you do not see it, choose <b>Next</b> until it appears.</li>
+              <li>Enter the account number shown above, then enter the amount.</li>
+              <li>Enter your Airtel Money PIN to confirm.</li>
+              <li>Wait for the Airtel confirmation message and keep it. You will need it below.</li>
+            </ol>
+          </div>
+          <div class="htp-note"><b>Good to know.</b> The menu on your phone may look a little different, so follow what appears on your screen. Mobile money has daily limits and small charges. Check your limit before you start. If the amount is more than your limit, pay in parts on different days and send proof for each part.</div>
+          <div class="htp-after">
+            <h4>After you pay</h4>
+            <p>Send a screenshot of your confirmation message, or the transaction ID, on WhatsApp or by email. Please include your name and the programme you are joining. You will receive a reply once your payment is confirmed.</p>
+            <ul class="htp-check">
+              <li>Check the account name before you confirm any payment.</li>
+              <li>Keep your transaction ID safe.</li>
+              <li>Send your proof of payment on WhatsApp or by email.</li>
+            </ul>
+            <div class="htp-actions">
+              <a class="htp-btn htp-btn-wa" target="_blank" rel="noopener" href="https://wa.me/256775495431?text=Hello%2C%20I%20have%20paid%20for%20the%20MEP%20Masterclass.%20My%20name%20is%20___.%20My%20transaction%20ID%20is%20___.">Send proof on WhatsApp</a>
+              <a class="htp-btn htp-btn-mail" href="mailto:info@potentialunexplored.com?subject=Proof%20of%20payment%20for%20the%20MEP%20Masterclass&amp;body=Hello%2C%20I%20have%20paid%20for%20the%20MEP%20Masterclass.%20My%20name%20is%20___.%20My%20transaction%20ID%20is%20___.">Send proof by email</a>
+            </div>
+            <p class="htp-warn">The WhatsApp number and the email address are for proof of payment only. Please do not send money to them. Pay only into the Centenary Bank account shown above.</p>
+          </div>
+        </div>
+      </div>
     </div></div></section>
 <!-- FOOTER -->
 <footer>
@@ -201,7 +258,7 @@
           <li><a href="upcoming-intakes.html">Upcoming Intakes</a></li>
           <li><a href="support.html">Support Our Work</a></li>
           <li><a href="about.html">Our Philosophy &amp; Team</a></li>
-          <li><a href="register.html">Apply and Pay</a></li>
+          <li><a href="register.html">Apply and Pay</a></li><li><a href="pay.html">How to Pay</a></li>
           <li><a href="contact.html">Contact Us</a></li>
           <li><a href="https://wa.me/256775495431?text=Hello%2C%20I%20am%20a%20graduate%20of%20one%20of%20your%20programmes" target="_blank">Already a Graduate?</a></li>
         </ul>

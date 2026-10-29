@@ -262,7 +262,7 @@ closeModal = function (id) {
 document.addEventListener('DOMContentLoaded', function () {
   if (!SHEET_ENDPOINT) return;
   var THANKS = {
-    'mep': ['Thank you. Your application has been received.', 'We will confirm your place within 24 hours. Please send your payment proof on WhatsApp to +256 775 495 431.'],
+    'mep': ['Thank you. Your application has been received.', 'One more step to secure your place. Pay using the details below, then send us your proof of payment. We confirm your place within 24 hours of receiving it.'],
     'girls-rising': ['Thank you. You are on the waiting list.', 'We will contact you as soon as the next intake date is confirmed.'],
     'orders': ['Thank you. Your request has been received.', 'We will confirm availability and payment options within 24 hours.']
   };
@@ -298,12 +298,50 @@ document.addEventListener('DOMContentLoaded', function () {
           box.style.cssText = 'background:#FFF8E8;border:1px solid var(--gold);border-radius:8px;padding:22px 24px;margin:16px 0;';
           box.innerHTML = '<h3 style="color:var(--green);margin-bottom:8px;">' + msg[0] + '</h3><p style="font-family:Arial,sans-serif;font-size:0.92rem;color:var(--mid);">' + msg[1] + '</p>';
           form.parentNode.replaceChild(box, form);
+          var payPanel = document.getElementById('payPanel');
+          if (keyField.value === 'mep' && payPanel) payPanel.hidden = false;
           box.scrollIntoView({ behavior: 'smooth', block: 'center' });
         })
         .catch(function () {
           if (button) { button.disabled = false; button.innerHTML = buttonText; }
           alert('Sorry, your details could not be sent. Please check your internet connection and try again, or message us on WhatsApp on +256 775 495 431.');
         });
+    });
+  });
+});
+
+
+/* How to pay guide: tabs and copy buttons */
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.htp').forEach(function (root) {
+    var tabs = root.querySelectorAll('.htp-tab');
+    tabs.forEach(function (t) {
+      t.addEventListener('click', function () {
+        tabs.forEach(function (x) { x.setAttribute('aria-selected', 'false'); });
+        t.setAttribute('aria-selected', 'true');
+        root.querySelectorAll('.htp-panel').forEach(function (p) { p.hidden = true; });
+        var panel = root.querySelector('#htp-' + t.getAttribute('data-tab'));
+        if (panel) panel.hidden = false;
+      });
+    });
+    root.querySelectorAll('.htp-copy').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var source = root.querySelector('#' + b.getAttribute('data-copy'));
+        if (!source) return;
+        var text = source.textContent.trim();
+        var ok = function () {
+          b.textContent = 'Copied'; b.classList.add('done');
+          setTimeout(function () { b.textContent = 'Copy'; b.classList.remove('done'); }, 1800);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(ok, function () {});
+        } else {
+          var a = document.createElement('textarea');
+          a.value = text; document.body.appendChild(a); a.select();
+          try { document.execCommand('copy'); ok(); } catch (err) {}
+          document.body.removeChild(a);
+        }
+      });
     });
   });
 });
