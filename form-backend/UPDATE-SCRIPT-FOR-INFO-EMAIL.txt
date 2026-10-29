@@ -1,0 +1,23 @@
+UPDATE: GET PUL FORM ALERTS ON info@potentialunexplored.com
+Do this once. The web app link stays the same, so the website does not change.
+
+1. Sign in to Google with baniyoluigi@gmail.com and open the sheet "Boys to Men Registrations".
+2. Click Extensions, then Apps Script.
+3. Delete everything in the editor.
+4. Open google-apps-script-with-pul-email.gs from this folder, copy ALL of it, and paste it into the editor.
+5. Click the save icon.
+6. Click Deploy, then Manage deployments, then the pencil icon.
+7. Under Version choose "New version", then click Deploy.
+   Please do not click "New deployment". That would create a new link.
+8. Google may ask you to authorise again. Click Authorise access, choose your account,
+   then Advanced, then "Go to (project name) (unsafe)", then Allow.
+
+After this, every form on potentialunexplored.com sends an email to info@potentialunexplored.com
+and to baniyoluigi@gmail.com. Boys to Men forms keep going to the owner only, as before.
+Entries are still saved in the sheet, with PUL ones marked "PUL website" in the Form column.
+
+Test: send a message from potentialunexplored.com/contact.html (wait 5 seconds before pressing Send)
+and check that it arrives at info@potentialunexplored.com.
+
+To use a different or extra address later, change PUL_NOTIFY_EMAIL near the top of the script.
+Free Gmail can send about 100 notification emails a day. Past that, entries are still saved in the sheet.
