@@ -8,7 +8,7 @@ var SHEET_ENDPOINT = 'https://script.google.com/macros/s/AKfycbz4TA60MMwRowFJujL
 
 /* The receiving script files messages under 'contact' and everything else under 'apply'.
    Each entry is also labelled so PUL forms can be told apart in the sheet. */
-var SHEET_FORM_TYPE = { 'contact': 'contact', 'support': 'contact', 'institutional': 'contact', 'mep': 'apply', 'girls-rising': 'apply', 'orders': 'apply', 'payments': 'apply' };
+var SHEET_FORM_TYPE = { 'contact': 'contact', 'support': 'contact', 'institutional': 'contact', 'mep': 'mep', 'girls-rising': 'apply', 'orders': 'apply', 'payments': 'apply' };
 var SHEET_FORM_LABEL = { 'contact': 'General enquiry', 'support': 'Support enquiry', 'institutional': 'Institutional enquiry', 'mep': 'MEP Masterclass application', 'girls-rising': 'Girls Rising waiting list', 'orders': 'Book or course order', 'payments': 'Payment notice' };
 function prepareSheetBody(body, key) {
   var name = body.get('Full Name') || body.get('registrant_name') || body.get('full_name') || body.get('name') ||

@@ -17,7 +17,8 @@ var PUL_NOTIFY_EMAIL = 'info@potentialunexplored.com';
 // Sheet (tab) names. They are created automatically on the first submission.
 var TABS = {
   apply: 'Registrations',
-  contact: 'Contact Messages'
+  contact: 'Contact Messages',
+  mep: 'MEP Applications'
 };
 
 // Fields that are only used for spam checks and are not saved.
@@ -36,7 +37,8 @@ function doPost(e) {
     lock.waitLock(20000);
 
     var p = e.parameters || {};
-    var formType = first_(p._form) === 'contact' ? 'contact' : 'apply';
+    var rawForm = first_(p._form);
+    var formType = rawForm === 'contact' ? 'contact' : (rawForm === 'mep' ? 'mep' : 'apply');
 
     // Spam trap: real visitors never fill this hidden field.
     if (first_(p._gotcha)) {

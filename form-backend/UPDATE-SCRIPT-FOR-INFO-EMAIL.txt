@@ -14,7 +14,8 @@ Do this once. The web app link stays the same, so the website does not change.
 
 After this, every form on potentialunexplored.com sends an email to info@potentialunexplored.com
 and to baniyoluigi@gmail.com. Boys to Men forms keep going to the owner only, as before.
-Entries are still saved in the sheet, with PUL ones marked "PUL website" in the Form column.
+MEP Masterclass applications now go to their own tab called "MEP Applications" in the same sheet,
+separate from the camp "Registrations" tab. Other entries are still saved in the sheet, with PUL ones marked "PUL website" in the Form column.
 
 Test: send a message from potentialunexplored.com/contact.html (wait 5 seconds before pressing Send)
 and check that it arrives at info@potentialunexplored.com.
