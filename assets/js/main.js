@@ -312,6 +312,7 @@ document.addEventListener('DOMContentLoaded', function () {
           box.style.cssText = 'background:#FFF8E8;border:1px solid var(--gold);border-radius:8px;padding:22px 24px;margin:16px 0;';
           box.innerHTML = '<h3 style="color:var(--green);margin-bottom:8px;">' + msg[0] + '</h3><p style="font-family:Arial,sans-serif;font-size:0.92rem;color:var(--mid);">' + msg[1] + '</p>';
           form.parentNode.replaceChild(box, form);
+          try { document.dispatchEvent(new CustomEvent('pul:form-sent', { detail: { form: keyField.value } })); } catch (err) {}
           var payPanel = document.getElementById('payPanel');
           if (keyField.value === 'mep' && payPanel) payPanel.hidden = false;
           box.scrollIntoView({ behavior: 'smooth', block: 'center' });

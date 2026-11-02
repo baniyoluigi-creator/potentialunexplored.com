@@ -27,7 +27,7 @@ base64, a shared stylesheet, and a shared JS file, rather than one giant single-
 
 ## Before this goes live
 
-1. **Google Analytics**: every page currently has a placeholder GA4 snippet with `G-XXXXXXXXXX`.
+1. **Google Analytics**: every page currently has a placeholder GA4 snippet with `G-XXXXXXXXXX` (now replaced by `assets/js/analytics.js`, which stays off until you set `GA_ID` inside it and shows a consent notice).
    Replace this with your real Measurement ID from analytics.google.com (or delete the two
    `<script>` tags near the top of each page's `<head>` if you don't want analytics yet).
 2. **Safeguarding policy**: `safeguarding.html` has a public summary. If you have (or want to
