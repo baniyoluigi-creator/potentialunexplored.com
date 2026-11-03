@@ -1,8 +1,8 @@
 /* ---------------------------------------------------------------
    Form delivery: Google Sheet (no monthly limit)
    Paste the Google Apps Script web app link between the quotes below
-   (see form-backend/SETUP-GOOGLE-SHEET-FORMS.txt). While it is empty,
-   the forms keep using Formspree as before.
+   (see form-backend/SETUP-GOOGLE-SHEET-FORMS.txt). All website forms
+   send to this Google Sheet. Formspree is no longer used.
    --------------------------------------------------------------- */
 var SHEET_ENDPOINT = 'https://script.google.com/macros/s/AKfycbz4TA60MMwRowFJujLeX_JA_v81z8s4cZI5kKACdZQ01kZDLO1ocpqF6EOyFMQp8XGY/exec';
 
@@ -23,11 +23,8 @@ function prepareSheetBody(body, key) {
 
 function postSmallForm(fields, formKey) {
   var body = new URLSearchParams(fields);
-  if (SHEET_ENDPOINT) {
-    prepareSheetBody(body, formKey);
-    return fetch(SHEET_ENDPOINT, { method: 'POST', mode: 'no-cors', body: body }).catch(function (err) { console.warn('Form post failed:', err); });
-  }
-  return fetch('https://formspree.io/f/xwvdqygk', { method: 'POST', headers: { 'Accept': 'application/json', 'Content-Type': 'application/x-www-form-urlencoded' }, body: body.toString() }).catch(function (err) { console.warn('Form post failed:', err); });
+  prepareSheetBody(body, formKey);
+  return fetch(SHEET_ENDPOINT, { method: 'POST', mode: 'no-cors', body: body }).catch(function (err) { console.warn('Form post failed:', err); });
 }
 
 /* Potential Unexplored Ltd — shared site JS */
@@ -99,14 +96,6 @@ function bookEnquiry(title) {
   modal.classList.add('open');
   document.body.style.overflow = 'hidden';
   var form = document.getElementById('book-order-form');
-  var nextField = form.querySelector('input[name="_next"]');
-  if (!nextField) {
-    nextField = document.createElement('input');
-    nextField.type = 'hidden';
-    nextField.name = '_next';
-    form.appendChild(nextField);
-  }
-  nextField.value = window.location.origin + window.location.pathname + '?success=true';
 }
 
 /* ── Registration hub: tabs + dropdown, synced ────────────────────── */
@@ -134,7 +123,7 @@ document.addEventListener('DOMContentLoaded', function () {
   if (document.getElementById('panel-b2m-kla')) switchProg('b2m-kla');
 });
 
-/* Registration success banner after Formspree redirect */
+/* Registration success banner (when a page opens with ?success=) */
 (function () {
   var q = window.location.search;
   if (q.indexOf('success=') > -1) {
@@ -274,7 +263,6 @@ closeModal = function (id) {
    Spam guard: hidden trap field and a short minimum fill time.
    --------------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', function () {
-  if (!SHEET_ENDPOINT) return;
   var THANKS = {
     'mep': ['Thank you. Your application has been received.', 'One more step to secure your place. Pay using the details below, then send us your proof of payment. We confirm your place within 24 hours of receiving it.'],
     'girls-rising': ['Thank you. You are on the waiting list.', 'We will contact you as soon as the next intake date is confirmed.'],
@@ -282,7 +270,7 @@ document.addEventListener('DOMContentLoaded', function () {
   };
   var DEFAULT_THANKS = ['Thank you. Your message has been received.', 'We will get back to you within 24 hours. For anything urgent, WhatsApp us on +256 775 495 431.'];
 
-  document.querySelectorAll('form[action*="formspree.io"]').forEach(function (form) {
+  document.querySelectorAll('form').forEach(function (form) {
     var keyField = form.querySelector('input[name="_form"]');
     if (!keyField) return;
     var openedAt = Date.now();
