@@ -1,0 +1,139 @@
+PASTE THIS INTO THE LIVE GOOGLE SCRIPT
+So that PUL website forms get their own tabs and alerts, and never mix with Boys to Men registrations.
+
+Do not replace the live script. You only ADD two things to it. The Boys to Men logic stays exactly as it is.
+The web app link stays the same, so the websites do not change.
+
+
+STEP 1. Open the script
+
+1. Sign in with baniyoluigi@gmail.com and open the sheet "Boys to Men Registrations".
+2. Click Extensions, then Apps Script.
+
+
+STEP 2. Add the call inside doPost
+
+Find these lines near the top of doPost:
+
+    // Spam trap: real visitors never fill this hidden field.
+    if (first_(p._gotcha)) {
+      return json_({ ok: true });
+    }
+
+Straight AFTER that closing brace, add these three lines:
+
+    // Potential Unexplored website forms have their own tabs and alerts.
+    if (pulIsPulForm_(p)) {
+      pulHandleForm_(p);
+      return json_({ ok: true });
+    }
+
+If the live script no longer has the spam trap lines exactly like that, add the three lines
+after the place where "p" is read from "e.parameters" and the lock is taken, and before any
+tab is chosen.
+
+
+STEP 3. Add the functions at the very bottom of the script
+
+Scroll to the end of the script and paste ALL of the block below after the last line.
+
+----------------------------------------------------------------------
+/* ------------------------------------------------------------------ */
+/* Potential Unexplored website forms                                  */
+/* Each PUL form has its own tab. Alerts go to info@ and to the owner. */
+/* ------------------------------------------------------------------ */
+
+var PUL_ALERT_EMAIL = 'info@potentialunexplored.com';
+
+// The website labels each form "PUL website: <name>". The name decides the tab.
+var PUL_TABS = {
+  'General enquiry': 'PUL Contact Messages',
+  'Support enquiry': 'PUL Support Enquiries',
+  'Institutional enquiry': 'PUL Institutional Enquiries',
+  'MEP Masterclass application': 'MEP Applications',
+  'Girls Rising waiting list': 'Girls Rising Waiting List',
+  'Book or course order': 'Book and Course Orders',
+  'Payment notice': 'Payment Notices'
+};
+var PUL_OTHER_TAB = 'PUL Other';
+var PUL_SKIP = ['_gotcha', 'bot-field', '_subject', '_form', '_page', '_replyto', '_next'];
+
+function pulFirst_(v) {
+  return (v && v.length) ? String(v[0]) : '';
+}
+
+function pulIsPulForm_(p) {
+  return pulFirst_(p['Form']).indexOf('PUL website') === 0;
+}
+
+function pulHandleForm_(p) {
+  var label = pulFirst_(p['Form']).replace(/^PUL website:\s*/, '');
+  var tabName = PUL_TABS[label] || PUL_OTHER_TAB;
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(tabName) || ss.insertSheet(tabName);
+
+  var row = { 'Submitted At': Utilities.formatDate(new Date(), 'Africa/Kampala', 'yyyy-MM-dd HH:mm:ss') };
+  Object.keys(p).forEach(function (key) {
+    if (PUL_SKIP.indexOf(key) !== -1) return;
+    row[key] = p[key].join('; ');
+  });
+  row['Page'] = pulFirst_(p['_page']);
+
+  // Make sure every field has a column. New fields add new columns.
+  var lastCol = sheet.getLastColumn();
+  var headers = lastCol > 0 ? sheet.getRange(1, 1, 1, lastCol).getValues()[0] : [];
+  Object.keys(row).forEach(function (name) {
+    if (headers.indexOf(name) === -1) {
+      headers.push(name);
+      sheet.getRange(1, headers.length).setValue(name);
+    }
+  });
+  sheet.getRange(1, 1, 1, headers.length).setFontWeight('bold');
+  sheet.setFrozenRows(1);
+  sheet.appendRow(headers.map(function (h) { return row[h] !== undefined ? row[h] : ''; }));
+
+  // Alert. If the email fails, the entry is still saved in the sheet.
+  try {
+    var owner = Session.getEffectiveUser().getEmail();
+    var to = [PUL_ALERT_EMAIL, owner].filter(function (x) { return x; }).join(',');
+    var lines = Object.keys(row).map(function (k) { return k + ': ' + row[k]; });
+    var replyTo = '';
+    Object.keys(row).forEach(function (k) {
+      if (!replyTo && /email/i.test(k) && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(row[k])) replyTo = row[k];
+    });
+    var options = { name: 'PUL Website' };
+    if (replyTo) options.replyTo = replyTo;
+    MailApp.sendEmail(to, pulFirst_(p['_subject']) || ('New PUL website entry: ' + label),
+      lines.join('\n') + '\n\nSaved in the sheet tab "' + tabName + '".', options);
+  } catch (mailErr) {}
+}
+----------------------------------------------------------------------
+
+
+STEP 4. Publish the new version
+
+1. Click the save icon.
+2. Click Deploy, then Manage deployments, then the pencil icon.
+3. Under Version choose "New version", then click Deploy.
+   Please do NOT click "New deployment". That would create a new link and the websites would stop reaching the sheet.
+4. If Google asks you to authorise again, click Authorise access, choose your account, then Advanced,
+   then "Go to (project name) (unsafe)", then Allow.
+
+
+STEP 5. Test
+
+1. Wait a minute, then open potentialunexplored.com/contact.html in a fresh tab.
+2. Send a test message. Wait about 5 seconds before pressing Send.
+3. A tab called "PUL Contact Messages" should appear in the sheet, and an alert should arrive at
+   info@potentialunexplored.com and at your Gmail.
+4. Check that nothing new appeared in "Registrations" or "Contact Messages".
+5. Delete the test rows afterwards.
+
+
+GOOD TO KNOW
+
+* Older PUL entries sent before this change may sit in "Registrations" or "Contact Messages".
+  You can cut them out and paste them into the matching PUL tab, if you wish.
+* Boys to Men forms are not affected. They do not carry the "PUL website" label, so they follow
+  the old path exactly as before.
+* Free Gmail can send about 100 alert emails a day. Past that, entries are still saved in the sheet.
