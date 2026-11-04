@@ -108,10 +108,10 @@
   function input(id, type, extra) { return '<input class="reg-input" id="' + id + '" type="' + (type || 'text') + '" ' + (extra || '') + '>'; }
   function select(id, opts, first) { return '<select class="reg-input" id="' + id + '">' + (first ? '<option value="">' + first + '</option>' : '') + opts.map(function (o) { return '<option>' + esc(o) + '</option>'; }).join('') + '</select>'; }
   function head(title, sub) { return '<div class="tp-top"><div><p class="reg-step-label">' + esc(sub) + '</p><h2 style="font-size:1.3rem;margin:0;color:var(--green);">' + esc(title) + '</h2></div><button type="button" class="tp-link" id="tpCancel">Back</button></div>'; }
-  function wrapForm(inner, btnText) {
+  function wrapForm(inner, btnText, subText, titleText) {
     return '<form id="tpForm" novalidate autocomplete="off">' + inner +
       '<p class="tp-error" id="tpError" role="alert" hidden></p>' +
-      '<div class="reg-submit-bar"><div><p class="reg-submit-title">Ready to send?</p><p class="reg-submit-sub">Banio receives it as soon as you send.</p></div>' +
+      '<div class="reg-submit-bar"><div><p class="reg-submit-title">' + (titleText || 'Ready to send?') + '</p><p class="reg-submit-sub">' + (subText || 'Banio receives it as soon as you send.') + '</p></div>' +
       '<button type="submit" class="reg-submit-btn" id="tpSend">' + btnText + ' &rarr;</button></div></form>';
   }
   function val(id) { var e = $(id); return e ? String(e.value).trim() : ''; }
@@ -182,7 +182,8 @@
   /* ---------- 1. daily report ---------- */
   var ASKED = ['Safety', 'Fee and payment', 'Daily programme', 'Younger boys', 'Travel and transport', 'What to carry', 'WhatsApp group', 'Refunds and withdrawal'];
   function dailyHtml() {
-    return head('Daily activity report', 'Daily report') + '<p class="tp-sub">Most answers are numbers or ticks, and one short line is enough for the rest.</p>' + wrapForm(
+    return head('Daily activity report', 'Daily report') + '<p class="tp-sub">Most answers are numbers or ticks, and one short line is enough for the rest. For the written answers you can type, or press Speak and talk.</p>' +
+      '<p class="tp-note">When you press <b>Review my report</b>, your written answers are tidied into clearer sentences by an AI helper. You will see your own words and the tidied version side by side. Nothing is sent until you approve it.</p>' + wrapForm(
       '<div class="tp-grid3">' + field('Date', input('dDate', 'date')) + '</div>' +
       '<div class="tp-block"><h3>1. Calls to parents</h3><p class="tp-sub">Numbers only. Put 0 if there were none.</p><div class="tp-grid3">' +
       field('Calls made', input('dCalls', 'number', 'min="0" inputmode="numeric"')) + field('Answered', input('dAns', 'number', 'min="0" inputmode="numeric"')) + field('Need a second try', input('dRetry', 'number', 'min="0" inputmode="numeric"')) + '</div></div>' +
@@ -198,20 +199,138 @@
       '<div class="tp-block"><h3>7. Tomorrow</h3>' + field('Top three things for tomorrow', input('dT1', 'text', 'placeholder="First"') + '<div style="height:8px"></div>' + input('dT2', 'text', 'placeholder="Second"') + '<div style="height:8px"></div>' + input('dT3', 'text', 'placeholder="Third"')) +
       '<div style="margin-top:14px;"><label class="reg-check-label"><input type="checkbox" id="dHelp"> I need help from Banio</label></div>' +
       '<div id="dHelpBox" style="margin-top:10px;" hidden>' + field('What do you need, and by when?', '<textarea class="reg-input" id="dHelpText" rows="2"></textarea>') + '</div></div>',
-      'Send my report');
+      'Review my report', 'You will see it once more before it is sent.', 'Ready to review?');
   }
+  var NARR = [
+    { key: 'Stuck Codes', id: 'dStuck', label: 'Boy codes that are stuck' },
+    { key: 'New Parent Questions', id: 'dNew', label: 'What a parent asked or said' },
+    { key: 'Families To Watch', id: 'dWatch', label: 'Families to watch' },
+    { key: 'Other Work', id: 'dOther', label: 'Other work today' },
+    { key: 'Win', id: 'dWin', label: 'One win' },
+    { key: 'Problem', id: 'dProb', label: 'One problem' },
+    { key: 'Tomorrow 1', id: 'dT1', label: 'Tomorrow, first thing' },
+    { key: 'Tomorrow 2', id: 'dT2', label: 'Tomorrow, second thing' },
+    { key: 'Tomorrow 3', id: 'dT3', label: 'Tomorrow, third thing' },
+    { key: 'Help Needed', id: 'dHelpText', label: 'The help you need', needs: 'dHelp' }
+  ];
+
+  /* Speak buttons. The words appear in the box as you talk, so you can correct them. */
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  var activeRec = null;
+  function stopSpeaking() { if (activeRec) { try { activeRec.stop(); } catch (e) {} } }
+  function addMic(id) {
+    var target = $(id); if (!target) return;
+    var wrap = el('div', { 'class': 'tp-microw' }), btn = el('button', { type: 'button', 'class': 'tp-mic' }, 'Speak'), st = el('span', { 'class': 'tp-micst' }, '');
+    wrap.appendChild(btn); wrap.appendChild(st);
+    target.parentNode.insertBefore(wrap, target.nextSibling);
+    if (!SR) { btn.style.display = 'none'; st.textContent = 'To speak, tap the microphone on your phone keyboard.'; return; }
+    var rec = null, base = '';
+    btn.addEventListener('click', function () {
+      if (activeRec === rec && rec) { rec.stop(); return; }
+      stopSpeaking();
+      rec = new SR(); rec.lang = 'en-GB'; rec.continuous = true; rec.interimResults = true;
+      base = target.value.trim();
+      rec.onresult = function (e) {
+        var fin = '', tmp = '';
+        for (var i = 0; i < e.results.length; i++) { if (e.results[i].isFinal) fin += e.results[i][0].transcript + ' '; else tmp += e.results[i][0].transcript; }
+        target.value = ((base ? base + ' ' : '') + (fin + tmp)).replace(/\s+/g, ' ').trim();
+      };
+      rec.onerror = function (e) { st.textContent = e.error === 'not-allowed' ? 'Please allow the microphone, then try again.' : 'We could not hear you. Please try again.'; };
+      rec.onend = function () { btn.textContent = 'Speak'; btn.classList.remove('on'); if (!/allow|could not/.test(st.textContent)) st.textContent = ''; if (activeRec === rec) activeRec = null; };
+      st.textContent = 'Listening. Talk now, then press Stop.'; btn.textContent = 'Stop'; btn.classList.add('on');
+      activeRec = rec;
+      try { rec.start(); } catch (e) { st.textContent = 'We could not start the microphone.'; btn.textContent = 'Speak'; btn.classList.remove('on'); activeRec = null; }
+    });
+  }
+
+  function errText(res) {
+    var m = { code: 'Your code was not accepted. Please sign in again.', access: 'You do not have access to this form.', missing: 'Please fill in all the required fields.' };
+    return m[res && res.error] || 'Something went wrong. Please try again, or tell Banio.';
+  }
+
   function dailyInit() {
     $('dDate').value = today(); $('dDate').max = today();
     $('dHelp').addEventListener('change', function () { $('dHelpBox').hidden = !this.checked; });
-    submit('team_report', function () {
-      if (val('dCalls') === '') return 'Please fill in the number of calls made, even if it is 0.';
+    NARR.forEach(function (n) { addMic(n.id); });
+    var f = $('tpForm'), btn = $('tpSend');
+    btn.setAttribute('data-t', btn.innerHTML);
+    $('tpCancel').addEventListener('click', function () { stopSpeaking(); renderHub(); });
+
+    function baseFields() {
       var asked = Array.prototype.slice.call(document.querySelectorAll('input[name="dAsked"]:checked')).map(function (x) { return x.value; });
       return { 'Report Date': val('dDate'), 'Calls Made': val('dCalls'), 'Calls Answered': val('dAns'), 'Need Second Try': val('dRetry'),
-        'Spoke About Paying': val('dTalked'), 'Payments Today': val('dPaid'), 'Stuck Codes': val('dStuck'), 'Parents Asked': asked,
-        'New Parent Questions': val('dNew'), 'Families To Watch': val('dWatch'), 'Other Work': val('dOther'), 'Win': val('dWin'), 'Problem': val('dProb'),
-        'Tomorrow 1': val('dT1'), 'Tomorrow 2': val('dT2'), 'Tomorrow 3': val('dT3'),
-        'Needs Help': $('dHelp').checked ? 'Yes' : '', 'Help Needed': $('dHelp').checked ? val('dHelpText') : '' };
-    }, 'Thank you. Your report has been received.', 'It will be included in the evening summary. You can close this page.');
+        'Spoke About Paying': val('dTalked'), 'Payments Today': val('dPaid'), 'Parents Asked': asked, 'Needs Help': $('dHelp').checked ? 'Yes' : '' };
+    }
+    function narrative() {
+      var o = {};
+      NARR.forEach(function (n) { if (n.needs && !$(n.needs).checked) return; var t = val(n.id); if (t) o[n.key] = t; });
+      return o;
+    }
+
+    f.addEventListener('submit', function (e) {
+      e.preventDefault(); stopSpeaking();
+      $('tpError').hidden = true;
+      if (val('dCalls') === '') return fail('Please fill in the number of calls made, even if it is 0.');
+      var orig = narrative(), base = baseFields();
+      if (!Object.keys(orig).length) return review(base, orig, null);
+      btn.disabled = true; btn.textContent = 'Tidying your words...';
+      call('team_polish', { Answers: JSON.stringify(orig) }).then(function (res) {
+        btn.disabled = false; btn.innerHTML = btn.getAttribute('data-t');
+        review(base, orig, res && res.ok && res.polished && Object.keys(res.polished).length ? res.polished : null);
+      }).catch(function () { btn.disabled = false; btn.innerHTML = btn.getAttribute('data-t'); review(base, orig, null); });
+    });
+
+    function review(base, orig, pol) {
+      f.hidden = true; f.style.display = 'none';
+      var old = $('tpReview'); if (old) old.remove();
+      var r = el('div', { id: 'tpReview' });
+      var h = '<h3 style="font-size:1.15rem;color:var(--green);margin:0 0 6px;">Please check your report</h3>';
+      h += '<p class="tp-note">' + (pol ? 'Your words have been tidied into clearer sentences. Read each one. You can change anything in the box, or press <b>Use my own words</b>. Nothing has been sent yet.'
+        : (Object.keys(orig).length ? 'The tidy-up is not available right now, so your words are shown exactly as you wrote them. You can still check them and send.' : 'You wrote no sentences, only numbers and ticks. Please check them and send.')) + '</p>';
+      h += '<p class="tp-recap"><b>' + esc(teamDateLabel(base['Report Date'])) + '</b>. Calls made ' + esc(base['Calls Made'] || '0') + ', answered ' + esc(base['Calls Answered'] || '0') + ', second try ' + esc(base['Need Second Try'] || '0') +
+        '. Spoke about paying ' + esc(base['Spoke About Paying'] || '0') + ', payments ' + esc(base['Payments Today'] || ($('dPaid').value || '0')) + '.</p>';
+      NARR.forEach(function (n) {
+        if (!(n.key in orig)) return;
+        var shown = pol && pol[n.key] ? pol[n.key] : orig[n.key];
+        h += '<div class="tp-rv"><h4>' + esc(n.label) + '</h4>' +
+          (pol && pol[n.key] ? '<p class="tp-said"><b>What you said:</b> ' + esc(orig[n.key]) + '</p>' : '') +
+          '<textarea class="reg-input" id="rv_' + n.id + '" rows="3">' + esc(shown) + '</textarea>' +
+          (pol && pol[n.key] ? '<button type="button" class="tp-link" data-own="' + n.id + '">Use my own words</button>' : '') + '</div>';
+      });
+      h += '<p class="tp-error" id="rvError" role="alert" hidden></p>' +
+        '<div class="tp-actions"><button type="button" class="reg-submit-btn" id="rvSend">Approve and send &rarr;</button><button type="button" class="tp-link" id="rvBack">Go back and edit</button></div>';
+      r.innerHTML = h; f.parentNode.insertBefore(r, f.nextSibling);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      Array.prototype.forEach.call(r.querySelectorAll('[data-own]'), function (b) {
+        b.addEventListener('click', function () { var n = NARR.filter(function (x) { return x.id === b.getAttribute('data-own'); })[0]; $('rv_' + n.id).value = orig[n.key]; });
+      });
+      $('rvBack').addEventListener('click', function () { r.remove(); f.hidden = false; f.style.display = ''; window.scrollTo({ top: 0, behavior: 'smooth' }); });
+      $('rvSend').addEventListener('click', function () {
+        var sb = $('rvSend'), er = $('rvError'); er.hidden = true;
+        var fields = base, changed = [];
+        NARR.forEach(function (n) {
+          if (!(n.key in orig)) { fields[n.key] = ''; return; }
+          var fin = String($('rv_' + n.id).value || '').trim();
+          fields[n.key] = fin;
+          if (fin !== orig[n.key]) changed.push(n.label + ': ' + orig[n.key]);
+        });
+        if (fields['Needs Help'] !== 'Yes') fields['Help Needed'] = '';
+        fields['Original Words'] = changed.join('\n');
+        sb.disabled = true; sb.textContent = 'Sending...';
+        call('team_report', fields).then(function (res) {
+          if (res && res.ok) {
+            $('tpDoneTitle').textContent = 'Thank you. Your report has been received.';
+            $('tpDoneText').textContent = 'It will be included in the evening summary. You can close this page.';
+            view('tpDone');
+          } else { sb.disabled = false; sb.innerHTML = 'Approve and send &rarr;'; er.textContent = errText(res); er.hidden = false; }
+        }).catch(function () { sb.disabled = false; sb.innerHTML = 'Approve and send &rarr;'; er.textContent = 'We could not send it. Please check your internet and try again.'; er.hidden = false; });
+      });
+    }
+  }
+  function teamDateLabel(ymd) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(ymd || ''); if (!m) return 'Today';
+    var mo = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    return parseInt(m[3], 10) + ' ' + mo[parseInt(m[2], 10) - 1] + ' ' + m[1];
   }
 
   /* ---------- 2. requisition ---------- */
