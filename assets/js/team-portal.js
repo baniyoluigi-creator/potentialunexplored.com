@@ -214,32 +214,55 @@
     { key: 'Help Needed', id: 'dHelpText', label: 'The help you need', needs: 'dHelp' }
   ];
 
-  /* Speak buttons. The words appear in the box as you talk, so you can correct them. */
-  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  var activeRec = null;
-  function stopSpeaking() { if (activeRec) { try { activeRec.stop(); } catch (e) {} } }
+  /* Speak buttons.
+     Android Chrome, desktop Chrome and Edge: the page listens and types your words into the box as you talk.
+     iPhone and iPad (and any browser without speech support): the button puts the cursor in the box and points
+     to the microphone on the phone keyboard, which works well and needs no setup. */
+  var IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  var SR = IS_IOS ? null : (window.SpeechRecognition || window.webkitSpeechRecognition);
+  var stopActive = null;
+  function stopSpeaking() { if (stopActive) { try { stopActive(); } catch (e) {} } }
   function addMic(id) {
     var target = $(id); if (!target) return;
+    target.setAttribute('autocapitalize', 'sentences'); target.setAttribute('spellcheck', 'true'); target.setAttribute('enterkeyhint', 'done');
     var wrap = el('div', { 'class': 'tp-microw' }), btn = el('button', { type: 'button', 'class': 'tp-mic' }, 'Speak'), st = el('span', { 'class': 'tp-micst' }, '');
     wrap.appendChild(btn); wrap.appendChild(st);
     target.parentNode.insertBefore(wrap, target.nextSibling);
-    if (!SR) { btn.style.display = 'none'; st.textContent = 'To speak, tap the microphone on your phone keyboard.'; return; }
-    var rec = null, base = '';
-    btn.addEventListener('click', function () {
-      if (activeRec === rec && rec) { rec.stop(); return; }
-      stopSpeaking();
-      rec = new SR(); rec.lang = 'en-GB'; rec.continuous = true; rec.interimResults = true;
-      base = target.value.trim();
+
+    if (!SR) {
+      btn.addEventListener('click', function () {
+        target.focus();
+        st.textContent = IS_IOS ? 'Tap the microphone key on your keyboard (bottom right), then talk. Your words appear in the box.' : 'Tap the microphone on your keyboard, then talk. Your words appear in the box.';
+      });
+      return;
+    }
+
+    var wanted = false, rec = null, base = '', finalText = '';
+    function paint(tmp) { target.value = (base + ' ' + finalText + ' ' + (tmp || '')).replace(/\s+/g, ' ').trim(); }
+    function reset() { wanted = false; btn.textContent = 'Speak'; btn.classList.remove('on'); if (stopActive === stop) stopActive = null; }
+    function stop() { wanted = false; try { if (rec) rec.stop(); } catch (e) {} reset(); if (/Listening/.test(st.textContent)) st.textContent = ''; }
+    function listen() {
+      rec = new SR(); rec.lang = 'en-GB'; rec.continuous = false; rec.interimResults = true;
       rec.onresult = function (e) {
-        var fin = '', tmp = '';
-        for (var i = 0; i < e.results.length; i++) { if (e.results[i].isFinal) fin += e.results[i][0].transcript + ' '; else tmp += e.results[i][0].transcript; }
-        target.value = ((base ? base + ' ' : '') + (fin + tmp)).replace(/\s+/g, ' ').trim();
+        var tmp = '';
+        for (var i = e.resultIndex; i < e.results.length; i++) { if (e.results[i].isFinal) finalText += ' ' + e.results[i][0].transcript; else tmp += e.results[i][0].transcript; }
+        paint(tmp);
       };
-      rec.onerror = function (e) { st.textContent = e.error === 'not-allowed' ? 'Please allow the microphone, then try again.' : 'We could not hear you. Please try again.'; };
-      rec.onend = function () { btn.textContent = 'Speak'; btn.classList.remove('on'); if (!/allow|could not/.test(st.textContent)) st.textContent = ''; if (activeRec === rec) activeRec = null; };
+      rec.onerror = function (e) {
+        if (e.error === 'not-allowed' || e.error === 'service-not-allowed') { st.textContent = 'Please allow the microphone, then try again.'; reset(); }
+        else if (e.error !== 'no-speech' && e.error !== 'aborted') { st.textContent = 'We could not hear you. Please try again, or use the microphone on your keyboard.'; reset(); }
+      };
+      /* The phone ends each listening turn after a pause. Start again until the person presses Stop. */
+      rec.onend = function () { paint(''); if (wanted) setTimeout(function () { if (wanted) { try { listen(); } catch (x) { stop(); } } }, 150); };
+      rec.start();
+    }
+    btn.addEventListener('click', function () {
+      if (wanted) { stop(); return; }
+      stopSpeaking();
+      base = target.value.trim(); finalText = ''; wanted = true;
       st.textContent = 'Listening. Talk now, then press Stop.'; btn.textContent = 'Stop'; btn.classList.add('on');
-      activeRec = rec;
-      try { rec.start(); } catch (e) { st.textContent = 'We could not start the microphone.'; btn.textContent = 'Speak'; btn.classList.remove('on'); activeRec = null; }
+      stopActive = stop;
+      try { listen(); } catch (e) { st.textContent = 'We could not start the microphone. Please use the one on your keyboard.'; reset(); }
     });
   }
 
