@@ -1,6 +1,6 @@
 /* Analytics with consent. Off until a GA4 Measurement ID is set below. */
 (function () {
-  var GA_ID = ''; // e.g. 'G-ABC123XYZ'. Leave empty to keep analytics off.
+  var GA_ID = 'G-7LREL7HFBC'; // e.g. 'G-ABC123XYZ'. Leave empty to keep analytics off.
   if (!GA_ID) return;
   var KEY = 'pul-consent';
   function get() { try { return localStorage.getItem(KEY); } catch (e) { return null; } }
