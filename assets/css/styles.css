@@ -74,11 +74,16 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: var
 .hero-stat strong { display: block; font-size: 2rem; font-weight: 700; color: var(--gold); line-height: 1; }
 .hero-stat span { font-family: Arial, sans-serif; font-size: 0.75rem; color: rgba(255,255,255,0.6); letter-spacing: 0.04em; }
 .hero-card-stack { width: 100%; max-width: 420px; }
-.hero-card { background: rgba(255,255,255,0.06); border: 1px solid rgba(201,150,42,0.25); border-radius: 12px; padding: 26px 30px; margin-bottom: 14px; display: block; transition: transform 0.3s; }
+.hero-card { position: relative; background: rgba(255,255,255,0.06); border: 1px solid rgba(201,150,42,0.25); border-radius: 12px; padding: 26px 30px; margin-bottom: 14px; display: block; transition: transform 0.3s; }
 .hero-card:hover { transform: translateX(6px); }
 .hero-card-eyebrow { font-family: Arial, sans-serif; font-size: 0.67rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
 .hero-card-title { font-size: 1.12rem; font-weight: 700; color: var(--white); margin-bottom: 5px; }
 .hero-card-body { font-size: 0.87rem; color: rgba(255,255,255,0.62); line-height: 1.65; }
+.card-main-link { color: inherit; text-decoration: none; }
+.card-main-link::after { content: ""; position: absolute; inset: 0; border-radius: 12px; }
+.hero-card-body .inline-link { position: relative; z-index: 2; color: var(--gold); text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 3px; }
+.hero-card-body .inline-link:hover, .hero-body .inline-link:hover { color: var(--white); text-decoration-style: solid; }
+.hero-body .inline-link { color: var(--gold); text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 3px; }
 
 .hero-ddd-strip {
   display: flex; align-items: center; gap: 14px; margin-top: 28px;
