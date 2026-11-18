@@ -12,8 +12,8 @@
 /* ------------------------------------------------------------------ */
 
 var ASSESS_FILE_ID = '1xh8KM8iFCgX2Xuc8EBwOWDeZ-7tr29yDL3-gee_M4NM';
-var ASSESS_FORMS = ['Team Health Check', 'Leader Health Check', 'Day Evaluation', 'Programme Evaluation'];
-var ASSESS_AREAS = ['Social Cohesion', 'Trust', 'Communication', 'Healthy Conflict', 'Commitment', 'Accountability', 'Teamwork', 'Results', 'Leadership Support'];
+var ASSESS_FORMS = ['Team Mirror', 'Team Mirror Leaders', 'Team Health Check', 'Leader Health Check', 'Day Evaluation', 'Programme Evaluation'];
+var ASSESS_AREAS = ['Social Cohesion', 'Trust', 'Communication', 'Healthy Conflict', 'Commitment', 'Accountability', 'Teamwork', 'Results', 'Leadership Support', 'Wellbeing'];
 
 function assessBand_(x) { return x >= 4.3 ? 'Thriving' : x >= 3.5 ? 'Steady' : x >= 2.5 ? 'Strained' : 'Needs Attention'; }
 
@@ -29,6 +29,16 @@ function assessHandle_(p) {
     var v = p[k].join('; ').slice(0, 2000);
     row[k] = /^\d{1,2}(\.\d)?$/.test(v) ? Number(v) : v;
   });
+  // The same email answering twice for one client is marked, so the repeat can be left out.
+  try {
+    var em = String(row['Email'] || '').toLowerCase().trim();
+    if (em && tab.getLastRow() > 1) {
+      var vals = tab.getDataRange().getValues(), hh = vals[0], cE = hh.indexOf('Email'), cC = hh.indexOf('Client Code');
+      for (var r = 1; r < vals.length; r++) {
+        if (cE >= 0 && String(vals[r][cE]).toLowerCase().trim() === em && String(vals[r][cC]) === String(row['Client Code'])) { row['Possible Repeat'] = 'Yes, this email already answered'; break; }
+      }
+    }
+  } catch (x) {}
   writeRows_(tab, [row]);
   try { assessSummary_(ss); } catch (x) {}
   try { assessAlert_(formName, row, ss); } catch (x) {}
@@ -50,7 +60,7 @@ function assessAlert_(formName, row, ss) {
 
 // A copy of the scores for the person who filled the Team or Leader Health Check.
 function assessReportEmail_(formName, row) {
-  if (formName !== 'Team Health Check' && formName !== 'Leader Health Check') return;
+  if (!/Team Mirror|Health Check/.test(formName)) return;
   var to = String(row['Email'] || '').trim();
   if (!/^[^@\s,;]+@[^@\s,;]+\.[^@\s,;]+$/.test(to)) return;
   var name = String(row['Name'] || '').replace(/https?:\/\/\S+|www\.\S+|[<>]/g, '').trim().slice(0, 60);
@@ -99,8 +109,8 @@ function assessSummary_(ss) {
     if (o['Organisation']) clients[code].org = o['Organisation'];
     return clients[code];
   };
-  read('Team Health Check').forEach(function (o) { bucket(o).m.push(o); });
-  read('Leader Health Check').forEach(function (o) { bucket(o).l.push(o); });
+  read('Team Mirror').concat(read('Team Health Check')).forEach(function (o) { bucket(o).m.push(o); });
+  read('Team Mirror Leaders').concat(read('Leader Health Check')).forEach(function (o) { bucket(o).l.push(o); });
   read('Day Evaluation').forEach(function (o) { bucket(o).d.push(o); });
   read('Programme Evaluation').forEach(function (o) { bucket(o).p.push(o); });
 

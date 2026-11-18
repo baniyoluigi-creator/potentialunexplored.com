@@ -9,17 +9,18 @@
   var ENDPOINT = 'https://script.google.com/macros/s/AKfycbz4TA60MMwRowFJujLeX_JA_v81z8s4cZI5kKACdZQ01kZDLO1ocpqF6EOyFMQp8XGY/exec';
 
   /* ---------------- question bank ---------------- */
-  var AREAS = ['Social Cohesion', 'Trust', 'Communication', 'Healthy Conflict', 'Commitment', 'Accountability', 'Teamwork', 'Results', 'Leadership Support'];
+  var AREAS = ['Social Cohesion', 'Trust', 'Communication', 'Healthy Conflict', 'Commitment', 'Accountability', 'Teamwork', 'Results', 'Leadership Support', 'Wellbeing'];
   var ITEMS = [
     ['Social Cohesion', 'Members of this team genuinely care about one another.', 'There is a good spirit and a sense of unity in this team.', 'I make an effort to know my colleagues as people, not only as workers.', 'I help new or quiet members feel welcome and included.'],
     ['Trust', 'I trust my colleagues to do their part well.', 'People here can admit a mistake or ask for help without fear of being judged.', 'I keep my word to colleagues, even on small things.', 'I admit my mistakes and ask for help when I need it.'],
-    ['Communication', 'The information we need to do our work reaches us in good time.', 'We speak to one another directly, rather than talking behind each other’s backs.', 'I listen to understand before I reply.', 'I share information others need, without waiting to be asked.'],
+    ['Communication', 'The information we need to do our work reaches us in good time.', 'We speak to one another directly, rather than talking behind each other\u2019s backs.', 'I listen to understand before I reply.', 'I share information others need, without waiting to be asked.'],
     ['Healthy Conflict', 'We can disagree openly in meetings without it becoming personal.', 'When there is tension between colleagues, it is talked about and settled, not left to grow.', 'I speak up when I disagree, even with someone senior to me.', 'When I am unhappy with a colleague, I go to them directly and respectfully.'],
-    ['Commitment', 'Everyone understands what our team is trying to achieve this year.', 'Once a decision is made, everyone supports it, even those who disagreed.', 'I know how my work adds to the team’s goals.', 'I fully support team decisions, even ones I argued against.'],
+    ['Commitment', 'Everyone understands what our team is trying to achieve this year.', 'Once a decision is made, everyone supports it, even those who disagreed.', 'I know how my work adds to the team\u2019s goals.', 'I fully support team decisions, even ones I argued against.'],
     ['Accountability', 'Team members do what they say they will do.', 'Colleagues kindly challenge one another when standards slip.', 'I deliver what I promise, on time.', 'I own my mistakes instead of blaming others or circumstances.'],
     ['Teamwork', 'Colleagues willingly help each other, even outside their own roles.', 'Different departments or units in our organisation work well together.', 'I offer help to colleagues before they ask.', 'I share the credit for success with the people who helped.'],
-    ['Results', 'We put team results ahead of personal or departmental interests.', 'We regularly check how we are doing against our targets, and learn from what we miss.', 'I care as much about the team’s results as about my own.', 'I look for ways to do my work better, not only to get it done.'],
-    ['Leadership Support', 'Our leaders are approachable when we have a concern.', 'Good work is noticed and appreciated by our leaders.', 'I raise concerns with my leaders openly, rather than complaining elsewhere.', 'I make my leader’s work easier by being reliable and keeping them informed.']
+    ['Results', 'We put team results ahead of personal or departmental interests.', 'We regularly check how we are doing against our targets, and learn from what we miss.', 'I care as much about the team\u2019s results as about my own.', 'I look for ways to do my work better, not only to get it done.'],
+    ['Leadership Support', 'Our leaders are approachable when we have a concern.', 'Good work is noticed and appreciated by our leaders.', 'I raise concerns with my leaders openly, rather than complaining elsewhere.', 'I make my leader\u2019s work easier by being reliable and keeping them informed.'],
+    ['Wellbeing', 'Our workload allows people to rest and have a life outside work.', 'This team supports people going through personal or family challenges.', 'I manage my time so that work does not crowd out my family and health.', 'I am preparing for life beyond my current job, through savings, skills or a plan.']
   ];
   var LEAD = [
     'I make it safe for my team to disagree with me.', 'I give each team member regular feedback, both praise and correction.',
@@ -33,13 +34,14 @@
     'Trust': ['People may be holding back, protecting themselves, or doing work twice because they are not sure others will deliver.', ['What would it take for you to admit a mistake in your next meeting?', 'Who on this team do you find hardest to trust, and what might you not know about them?'], ['Share one thing you are struggling with at work and ask for help this week.', 'Keep one small promise you have made to a colleague, on time.']],
     'Communication': ['Information may be arriving late, in pieces, or through the grapevine rather than straight from the source.', ['When last did you hear something important about your work from a corridor rather than a meeting?', 'Do people leave your conversations feeling heard?'], ['In your next conversation, repeat back what you heard before you reply.', 'Agree with your team one place where key updates will always be shared.']],
     'Healthy Conflict': ['Disagreements may be going underground, which often shows up as silence in meetings and complaints afterwards.', ['What is one thing the team needs to talk about but keeps avoiding?', 'How do you usually react when someone disagrees with you?'], ['Invite the quietest person in your next meeting to give their view first.', 'Have one honest, respectful conversation you have been putting off.']],
-    'Commitment': ['People may be busy without being sure what matters most, or may be nodding at decisions they do not truly support.', ['Could every member of your team name the top three priorities for this year?', 'Is there a decision you agreed to in the meeting but have not fully supported since?'], ['Write down in one sentence how your work adds to the team’s goals, and share it.', 'At the end of your next meeting, ask everyone to repeat what was agreed and who will do what.']],
-    'Accountability': ['Standards may slip quietly because people are not comfortable reminding one another of what was agreed.', ['What do you do when a colleague does not deliver what they promised?', 'Where are you waiting for a leader to correct something you could raise yourself?'], ['Agree with a colleague to check on each other’s commitments this week.', 'Own one mistake openly, and say what you will do differently.']],
+    'Commitment': ['People may be busy without being sure what matters most, or may be nodding at decisions they do not truly support.', ['Could every member of your team name the top three priorities for this year?', 'Is there a decision you agreed to in the meeting but have not fully supported since?'], ['Write down in one sentence how your work adds to the team\u2019s goals, and share it.', 'At the end of your next meeting, ask everyone to repeat what was agreed and who will do what.']],
+    'Accountability': ['Standards may slip quietly because people are not comfortable reminding one another of what was agreed.', ['What do you do when a colleague does not deliver what they promised?', 'Where are you waiting for a leader to correct something you could raise yourself?'], ['Agree with a colleague to check on each other\u2019s commitments this week.', 'Own one mistake openly, and say what you will do differently.']],
     'Teamwork': ['People may be guarding their own work, and units may be pulling in different directions.', ['When last did you help a colleague with something outside your own role?', 'Where does work get stuck between your unit and another?'], ['Offer help to someone in another unit before they ask.', 'Thank, by name, the people who helped you deliver something this month.']],
-    'Results': ['Personal or departmental interests, comfort, or busyness may be taking the place of shared results.', ['If your team’s results were posted on the wall today, would you be proud of them?', 'What gets more attention in your team, activity or results?'], ['Look at one team target this week and ask, are we on track?', 'Celebrate one win, however small, with the whole team.']],
+    'Results': ['Personal or departmental interests, comfort, or busyness may be taking the place of shared results.', ['If your team\u2019s results were posted on the wall today, would you be proud of them?', 'What gets more attention in your team, activity or results?'], ['Look at one team target this week and ask, are we on track?', 'Celebrate one win, however small, with the whole team.']],
+    'Wellbeing': ['People may be stretched thin, carrying worries from home, or giving little thought to life after this job.', ['When last did you take real rest, without work on your mind?', 'If this job ended a year from now, how ready would you be?'], ['Set one boundary this week that protects time for family or health.', 'Put aside a small amount of money this week, or write down one skill you want to build for the future.']],
     'Leadership Support': ['People may feel they cannot easily reach their leaders, or that good work goes unnoticed.', ['If you are a leader, what would your team say about you when you are not in the room?', 'If you are a team member, what support do you need that you have not asked for?'], ['Leaders, ask one team member this week, what is one thing I could do better?', 'Team members, book a short conversation with your supervisor about what you need.']]
   };
-  var AGREE = ['Strongly disagree', 'Disagree', 'Not sure', 'Agree', 'Strongly agree'];
+  var AGREE = ['Strongly disagree', 'Disagree', 'Partly agree', 'Agree', 'Strongly agree'];
   var OFTEN = ['Never', 'Rarely', 'Sometimes', 'Often', 'Always'];
   var RATE = ['Very poor', 'Poor', 'Fair', 'Good', 'Excellent'];
 
@@ -48,7 +50,7 @@
   var CLIENT = (qs.get('c') || 'GENERAL').trim().slice(0, 40);
   var ORG = (qs.get('o') || '').trim().slice(0, 80);
   var DEPTS = (qs.get('d') || '').split('|').map(function (x) { return x.trim(); }).filter(Boolean);
-  if (!DEPTS.length) DEPTS = ['Management', 'Programmes or operations', 'Finance and administration', 'Field team', 'Support services'];
+  if (!DEPTS.length) DEPTS = ['Management', 'Programmes', 'Operations', 'Finance and Administration', 'Human Resources', 'Field team', 'Other'];
   var SESSIONS = (qs.get('s') || '').split('|').map(function (x) { return x.trim(); }).filter(Boolean);
   if (!SESSIONS.length) SESSIONS = ['Opening circle and introductions', 'Trust activities', 'Communication games', 'Problem solving challenges', 'Reflection sessions', 'Team commitments'];
 
@@ -75,7 +77,7 @@
     w.appendChild(el('p', { class: 'as-qt' }, (num ? '<span class="as-n">' + num + '</span>' : '') + esc(text)));
     var row = el('div', { class: 'as-scale', role: 'radiogroup', 'aria-label': text });
     labels.forEach(function (lab, i) {
-      var b = el('button', { type: 'button', class: 'as-opt', role: 'radio', 'aria-checked': 'false', title: lab }, '<b>' + (i + 1) + '</b><small>' + esc(lab) + '</small>');
+      var b = el('button', { type: 'button', class: 'as-opt v' + (i + 1), role: 'radio', 'aria-checked': 'false', title: lab }, '<b>' + (i + 1) + '</b><small>' + esc(lab) + '</small>');
       b.addEventListener('click', function () {
         answers[key] = i + 1;
         row.querySelectorAll('.as-opt').forEach(function (x) { x.classList.remove('on'); x.setAttribute('aria-checked', 'false'); });
@@ -147,6 +149,7 @@
   }
   function step(title, sub, blocks, opts) {
     var s = el('div', { class: 'as-step' });
+    if (opts && opts.kicker) s.appendChild(el('p', { class: 'as-kicker' }, esc(opts.kicker)));
     s.appendChild(el('h2', { class: 'as-h' }, esc(title)));
     if (sub) s.appendChild(el('p', { class: 'as-sub' }, sub));
     blocks.forEach(function (b) { if (b) s.appendChild(b); });
@@ -157,9 +160,10 @@
   /* ---------------- navigation ---------------- */
   function render() {
     root.innerHTML = '';
-    var bar = el('div', { class: 'as-progress' }, '<span style="width:' + Math.round((cur / steps.length) * 100) + '%"></span>');
-    root.appendChild(bar);
-    root.appendChild(el('p', { class: 'as-count' }, 'Step ' + (cur + 1) + ' of ' + steps.length));
+    var dots = '';
+    for (var d = 0; d < steps.length; d++) dots += '<i class="' + (d < cur ? 'done' : (d === cur ? 'now' : '')) + '"></i>';
+    var top = el('div', { class: 'as-top' }, '<div class="as-progress"><span style="width:' + Math.round(((cur + 1) / steps.length) * 100) + '%"></span></div><div class="as-meta"><span class="as-count">Step ' + (cur + 1) + ' of ' + steps.length + '</span><span class="as-dots">' + dots + '</span></div>');
+    root.appendChild(top);
     root.appendChild(steps[cur]);
     var nav = el('div', { class: 'as-nav' });
     if (cur > 0) { var back = el('button', { type: 'button', class: 'as-back' }, 'Back'); back.onclick = function () { cur--; render(); scrollTop(); }; nav.appendChild(back); }
@@ -203,14 +207,16 @@
     ITEMS.forEach(function (it, a) { list.push({ key: prefix + (a * 2 + 1), text: it[idx[0]] }); list.push({ key: prefix + (a * 2 + 2), text: it[idx[1]] }); });
     return mixed(list.length).map(function (i, n) { return scaleBlock(list[i].key, list[i].text, scale, n + 1); });
   }
-  function isLeader() { return /Supervisor|Manager/.test(answers.role || ''); }
+  function isLeader() { return /Supervisor|Senior/.test(answers.role || ''); }
 
   function buildTHC() {
     mode = 'thc';
-    var intro = step('Before we begin', 'Thank you for taking a few minutes to help us prepare for your team building day. First you will look at your team, and then at yourself as part of it. There are no right or wrong answers, so please answer as things really are, not as they should be. Your answers are anonymous unless you choose to give your name. It takes about 8 minutes.', [
-      choiceBlock('role', 'Which best describes your role?', ['Team member', 'Supervisor or team leader', 'Manager or senior leader']),
+    var expect = el('div', { class: 'as-expect' }, '<div><b>1</b><span>Look at your team</span></div><div><b>2</b><span>Look at yourself in it</span></div><div><b>3</b><span>Get your own report</span></div>');
+    var intro = step('Before we begin', 'Thank you for taking a few minutes to help us prepare for your team building day. First you will look at your team, and then at yourself as part of it. There are no right or wrong answers, so please answer as things really are, not as they should be. Your answers are anonymous unless you choose to give your name. It takes about 9 minutes.', [
+      expect,
+      choiceBlock('role', 'Which best describes your role?', ['Team member', 'Supervisor', 'Senior management']),
       choiceBlock('dept', 'Your department, unit or team', DEPTS)
-    ], { after: buildRest });
+    ], { after: buildRest, kicker: 'Team Building Questionnaire' });
     steps = [intro];
   }
   function buildRest() {
@@ -221,8 +227,8 @@
         choiceBlock('tenure', 'How long have you led this team?', ['Less than 1 year', '1 to 3 years', 'More than 3 years'])])
       : step('About you', null, [
         choiceBlock('tenure', 'How long have you been in this team?', ['Less than 1 year', '1 to 3 years', '4 to 6 years', 'More than 6 years'])]);
-    var team = step('Our team', 'How much do you agree with each statement? 1 Strongly disagree, 5 Strongly agree.', teamStatements('T', [1, 2], AGREE));
-    var me = step('Me in the team', 'How often is each statement true of you? 1 Never, 5 Always.', teamStatements('M', [3, 4], OFTEN));
+    var team = step('Our team', 'How much do you agree with each statement? 1 Strongly disagree, 5 Strongly agree.', teamStatements('T', [1, 2], AGREE), { kicker: 'Part one. Looking at the team' });
+    var me = step('Me in the team', 'How often is each statement true of you? 1 Never, 5 Always.', teamStatements('M', [3, 4], OFTEN), { kicker: 'Part two. Looking at myself' });
     var list = [intro0(), about, team, me];
     if (lead) list.push(step('My leadership', 'How often is each statement true of you? 1 Never, 5 Always.', LEAD.map(function (t, i) { return scaleBlock('L' + (i + 1), t, OFTEN, i + 1); })));
     if (lead) {
@@ -240,7 +246,7 @@
       ]));
     } else {
       list.push(step('Quick choices', null, [
-        choiceBlock('strength', 'Which area is this team’s greatest strength?', AREAS),
+        choiceBlock('strength', 'Which area is this team\u2019s greatest strength?', AREAS),
         choiceBlock('holdsBack', 'Which area holds this team back the most?', AREAS),
         choiceBlock('growMe', 'Which area would you most like to grow in yourself?', AREAS),
         choiceBlock('focus', 'Which areas should the team building day focus on?', AREAS, { max: 3 }),
@@ -281,14 +287,14 @@
     var strong = order.slice(0, 2), grow = order.slice(-2).reverse();
     var h = '';
     h += '<div class="as-report">';
-    h += '<p class="eyebrow">Your report</p><h2 class="as-h">Team Health Check' + (ORG ? ', ' + esc(ORG) : '') + '</h2>';
+    h += '<p class="eyebrow">Your personal report</p><h2 class="as-h">Team Mirror' + (ORG ? ', ' + esc(ORG) : '') + '</h2><p class="as-sub">This report comes only from your own answers. No one else\u2019s answers are shown here.</p>';
     h += '<div class="as-tiles">';
     h += '<div class="as-tile ' + bandClass(s.overallTeam) + '"><small>How you see the team</small><b>' + r1(s.overallTeam) + '</b><span>' + band(s.overallTeam) + '</span></div>';
     h += '<div class="as-tile ' + bandClass(s.overallMe) + '"><small>How you see yourself in it</small><b>' + r1(s.overallMe) + '</b><span>' + band(s.overallMe) + '</span></div>';
     if (s.lead !== null) h += '<div class="as-tile ' + bandClass(s.lead) + '"><small>Your leadership</small><b>' + r1(s.lead) + '</b><span>' + band(s.lead) + '</span></div>';
     h += '</div>';
     h += '<p class="as-note">Scores run from 1 to 5. Thriving is 4.3 and above, Steady 3.5 to 4.2, Strained 2.5 to 3.4, and Needs Attention below 2.5.</p>';
-    h += '<h3 class="as-h3">The nine areas</h3><div class="as-legend"><span class="t"></span>Our team <span class="m"></span>Me in the team</div><div class="as-chart">';
+    h += '<h3 class="as-h3">The ten areas</h3><div class="as-legend"><span class="t"></span>Our team <span class="m"></span>Me in the team</div><div class="as-chart">';
     AREAS.forEach(function (a) {
       h += '<div class="as-row"><span class="as-lab">' + a + '</span><div class="as-bars">' +
         '<div class="as-bar t" style="width:' + (s.team[a] / 5 * 100) + '%"><em>' + r1(s.team[a]) + '</em></div>' +
@@ -347,7 +353,7 @@
   /* ---------------- Programme Evaluation ---------------- */
   function buildProg() {
     mode = 'prog';
-    var teamPick = [1, 2, 2, 1, 1, 1, 1, 1, 1];
+    var teamPick = [1, 2, 2, 1, 1, 1, 1, 1, 1, 1];
     steps = [
       step('A short health check', 'A few weeks have passed since your team building day. We would love to know what has changed, and what has not. It takes about 4 minutes. First, how much do you agree? 1 Strongly disagree, 5 Strongly agree.',
         ITEMS.map(function (it, a) { return scaleBlock('T' + (a + 1), it[teamPick[a]], AGREE, a + 1); })),
@@ -394,7 +400,7 @@
     var btn = root.querySelector('.as-next'); if (btn) { btn.disabled = true; btn.textContent = 'Sending, please wait...'; }
     var err0 = document.getElementById('asErr'); if (err0) err0.textContent = 'This can take up to 15 seconds. Please keep this page open.';
     var body = new URLSearchParams();
-    var formName = mode === 'thc' ? (isLeader() ? 'Leader Health Check' : 'Team Health Check') : (mode === 'day' ? 'Day Evaluation' : 'Programme Evaluation');
+    var formName = mode === 'thc' ? (isLeader() ? 'Team Mirror Leaders' : 'Team Mirror') : (mode === 'day' ? 'Day Evaluation' : 'Programme Evaluation');
     body.set('_form', 'assessment'); body.set('_page', location.pathname);
     body.set('Form', formName); body.set('Client Code', CLIENT); body.set('Organisation', ORG);
     var report = '', s = null;
@@ -412,13 +418,23 @@
     });
     ['R', 'T', 'M', 'L'].forEach(function (pre) { for (var i = 1; i <= 18; i++) if (answers[pre + i] !== undefined) body.set(pre + i, String(answers[pre + i])); });
     if (mode === 'thc') report = reportTHC(s); else if (mode === 'day') report = reportDay(); else report = reportProg(s);
-    var done = function () { root.innerHTML = report; scrollTop(); };
+    var done = function () { try { localStorage.setItem(doneKey(), new Date().toISOString()); } catch (x) {} root.innerHTML = report; scrollTop(); };
     fetch(ENDPOINT, { method: 'POST', mode: 'no-cors', body: body }).then(done, function () {
       root.innerHTML = '<div class="as-report"><div class="as-card"><b>We could not send your answers.</b><p>Please check your internet connection and press the button again.</p><p class="as-actions"><button type="button" class="btn btn-primary" id="asRetry">Try again</button></p></div></div>';
       document.getElementById('asRetry').onclick = function () { root.innerHTML = '<p class="as-sub">Sending...</p>'; fetch(ENDPOINT, { method: 'POST', mode: 'no-cors', body: body }).then(done, function () { alertFail(); }); };
     });
   }
   function alertFail() { root.innerHTML = '<div class="as-report"><div class="as-card"><b>Still no connection.</b><p>Please try again a little later, or WhatsApp us on +256 775 495 431.</p></div></div>'; }
+
+  /* ---------------- once per person ---------------- */
+  function doneKey() { return 'pul-done-' + (root ? root.getAttribute('data-form') : '') + '-' + CLIENT; }
+  function alreadyDone() { try { return localStorage.getItem(doneKey()); } catch (x) { return null; } }
+  function showDone(start) {
+    root.innerHTML = '<div class="as-report"><p class="eyebrow">Thank you</p><h2 class="as-h">You have already filled this in</h2>' +
+      '<div class="as-card good"><p>Your answers from this phone or computer have already reached us' + (ORG ? ' for ' + esc(ORG) : '') + '. Each person fills the form only once, so there is nothing more to do.</p></div>' +
+      '<p class="as-note" style="text-align:center;margin-top:18px;">Is a different person using this phone? <button type="button" class="as-link" id="asFresh">Start a fresh form for them</button></p></div>';
+    document.getElementById('asFresh').onclick = function () { try { localStorage.removeItem(doneKey()); } catch (x) {} start(); };
+  }
 
   /* ---------------- start ---------------- */
   document.addEventListener('DOMContentLoaded', function () {
@@ -427,7 +443,7 @@
     var kind = root.getAttribute('data-form');
     var orgLine = document.getElementById('assessOrg');
     if (orgLine && ORG) orgLine.textContent = 'For ' + ORG;
-    if (kind === 'thc') buildTHC(); else if (kind === 'day') buildDay(); else buildProg();
-    render();
+    var start = function () { cur = 0; answers = {}; if (kind === 'thc') buildTHC(); else if (kind === 'day') buildDay(); else buildProg(); render(); };
+    if (alreadyDone()) showDone(start); else start();
   });
 })();
