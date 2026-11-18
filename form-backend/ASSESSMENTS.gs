@@ -124,7 +124,24 @@ function assessSummary_(ss) {
     return Math.round((pro - det) / v.length * 100);
   };
 
-  var head = ['Client Code', 'Organisation', 'Members Answered', 'Leaders Answered',
+  // Offices of one client (DRC-KAMPALA, DRC-KARAMOJA...) also get a combined row, so a small group can be joined with others.
+  var groups = {};
+  order.slice().forEach(function (code) {
+    var at = code.indexOf('-');
+    if (at < 1 || /^TEST/.test(code)) return;
+    var pre = code.slice(0, at);
+    if (!groups[pre]) groups[pre] = [];
+    groups[pre].push(code);
+  });
+  Object.keys(groups).forEach(function (pre) {
+    var all = { org: String(clients[groups[pre][0]].org || pre).split(',')[0] + ', all offices combined', m: [], l: [], d: [], p: [] };
+    groups[pre].forEach(function (code) { ['m', 'l', 'd', 'p'].forEach(function (k) { all[k] = all[k].concat(clients[code][k]); }); });
+    clients[pre + '-ALL'] = all; order.push(pre + '-ALL');
+  });
+  // The promise to staff: no group smaller than five is reported on its own.
+  var safe = function (n) { return n === 0 ? '' : n >= 5 ? 'Yes' : 'No, under 5, join with another group'; };
+
+  var head = ['Client Code', 'Organisation', 'Members Answered', 'Leaders Answered', 'Members Safe To Report Alone', 'Leaders Safe To Report Alone',
     'Members: Team Overall', 'Members: Me Overall', 'Leaders: Team Overall', 'Leaders: Me Overall', 'Leaders: Leadership',
     'Gap, Leaders Minus Members', 'Leader Guess Out Of 10', 'Members Say Holds Team Back', 'Members Say Focus On', 'Team Mood']
     .concat(ASSESS_AREAS.map(function (a) { return 'Members Team: ' + a; }))
@@ -133,7 +150,7 @@ function assessSummary_(ss) {
   var out = order.map(function (code) {
     var c = clients[code];
     var mt = mean(c.m, 'Overall Team'), lt = mean(c.l, 'Overall Team'), pt = mean(c.p, 'Overall Team');
-    return [code, c.org, c.m.length, c.l.length, mt, mean(c.m, 'Overall Me'), lt, mean(c.l, 'Overall Me'), mean(c.l, 'Overall Leadership'),
+    return [code, c.org, c.m.length, c.l.length, safe(c.m.length), safe(c.l.length), mt, mean(c.m, 'Overall Me'), lt, mean(c.l, 'Overall Me'), mean(c.l, 'Overall Leadership'),
       (mt !== '' && lt !== '') ? Math.round((lt - mt) * 10) / 10 : '', mean(c.l, 'Leader Guess Out Of 10'),
       top(c.m, 'Holds Team Back'), top(c.m, 'Day Should Focus On'), top(c.m, 'Team Mood')]
       .concat(ASSESS_AREAS.map(function (a) { return mean(c.m, 'Team: ' + a); }))
@@ -142,14 +159,20 @@ function assessSummary_(ss) {
         (pt !== '' && mt !== '') ? Math.round((pt - mt) * 10) / 10 : '', top(c.p, 'Team Compared With Before')]);
   });
   var sh = ss.getSheetByName('Client Summary') || ss.insertSheet('Client Summary', 0);
-  sh.clearContents();
+  sh.clear();
   sh.getRange(1, 1, 1, head.length).setValues([head]).setFontWeight('bold').setBackground('#1B4332').setFontColor('#FFFFFF').setWrap(true);
   sh.setFrozenRows(1); sh.setFrozenColumns(2);
-  if (out.length) sh.getRange(2, 1, out.length, head.length).setValues(out);
+  if (out.length) {
+    sh.getRange(2, 1, out.length, head.length).setValues(out);
+    var flags = sh.getRange(2, 5, out.length, 2).getValues();
+    flags.forEach(function (r, i) { r.forEach(function (v, j) {
+      sh.getRange(i + 2, 5 + j).setBackground(/^No/.test(v) ? '#F8D7DA' : (v === 'Yes' ? '#D8EDDF' : null));
+    }); });
+  }
 }
 
 // Keeps the columns in a sensible order: who and where, scores, choices, then each statement.
-var ASSESS_ORDER = ['Form', 'Client Code', 'Organisation', 'Role', 'Department', 'People Led', 'Time In Team', 'Overall Team', 'Overall Me', 'Overall Leadership', 'Day Average', 'Recommend 0 To 10'];
+var ASSESS_ORDER = ['Form', 'Client Code', 'Organisation', 'Location', 'Role', 'Overall Team', 'Overall Me', 'Overall Leadership', 'Day Average', 'Recommend 0 To 10'];
 function assessRank_(k) {
   var i = ASSESS_ORDER.indexOf(k);
   if (i >= 0) return i;
