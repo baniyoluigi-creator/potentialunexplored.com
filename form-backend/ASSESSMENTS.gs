@@ -24,7 +24,7 @@ function assessHandle_(p) {
   var ss = SpreadsheetApp.openById(ASSESS_FILE_ID);
   var tab = ss.getSheetByName(formName) || ss.insertSheet(formName);
   var row = { 'Submitted At': now_() };
-  Object.keys(p).forEach(function (k) {
+  Object.keys(p).sort(function (a, b) { return (assessRank_(a) - assessRank_(b)) || (a < b ? -1 : 1); }).forEach(function (k) {
     if (k.charAt(0) === '_') return;
     var v = p[k].join('; ').slice(0, 2000);
     row[k] = /^\d{1,2}(\.\d)?$/.test(v) ? Number(v) : v;
@@ -143,4 +143,18 @@ function assessSummary_(ss) {
   sh.getRange(1, 1, 1, head.length).setValues([head]).setFontWeight('bold').setBackground('#1B4332').setFontColor('#FFFFFF').setWrap(true);
   sh.setFrozenRows(1); sh.setFrozenColumns(2);
   if (out.length) sh.getRange(2, 1, out.length, head.length).setValues(out);
+}
+
+// Keeps the columns in a sensible order: who and where, scores, choices, then each statement.
+var ASSESS_ORDER = ['Form', 'Client Code', 'Organisation', 'Role', 'Department', 'People Led', 'Time In Team', 'Overall Team', 'Overall Me', 'Overall Leadership', 'Day Average', 'Recommend 0 To 10'];
+function assessRank_(k) {
+  var i = ASSESS_ORDER.indexOf(k);
+  if (i >= 0) return i;
+  if (/^Team: /.test(k)) return 100 + ASSESS_AREAS.indexOf(k.slice(6));
+  if (/^Me: /.test(k)) return 200 + ASSESS_AREAS.indexOf(k.slice(4));
+  var m = k.match(/^([RTML])(\d+)$/);
+  if (m) return 1000 + 'RTML'.indexOf(m[1]) * 100 + Number(m[2]);
+  if (k === 'Name') return 900;
+  if (k === 'Email') return 901;
+  return 300;
 }
