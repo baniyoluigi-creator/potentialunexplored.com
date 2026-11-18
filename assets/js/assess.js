@@ -391,7 +391,8 @@
     changeArea: 'Clearest Change', blocks: 'What Got In The Way', support: 'Support Needed', anythingElse: 'Anything Else'
   };
   function submit() {
-    var btn = root.querySelector('.as-next'); if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
+    var btn = root.querySelector('.as-next'); if (btn) { btn.disabled = true; btn.textContent = 'Sending, please wait...'; }
+    var err0 = document.getElementById('asErr'); if (err0) err0.textContent = 'This can take up to 15 seconds. Please keep this page open.';
     var body = new URLSearchParams();
     var formName = mode === 'thc' ? (isLeader() ? 'Leader Health Check' : 'Team Health Check') : (mode === 'day' ? 'Day Evaluation' : 'Programme Evaluation');
     body.set('_form', 'assessment'); body.set('_page', location.pathname);
