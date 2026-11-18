@@ -48,13 +48,18 @@
   /* ---------------- helpers ---------------- */
   var qs = new URLSearchParams(location.search);
   // Clients with short links. The code alone fills in the organisation name.
+  // A client with locations asks people where they are based, and files each location separately.
   var CLIENTS = {
-    'DRC-REVIEW': 'DRC Uganda',
-    'DRC-KAMPALA': 'DRC Uganda, Kampala',
-    'DRC-WESTNILE': 'DRC Uganda, West Nile'
+    'DRC': { org: 'DRC Uganda', loc: ['Kampala', 'Karamoja', 'West Nile'] },
+    'DRC-REVIEW': { org: 'DRC Uganda', loc: ['Kampala', 'Karamoja', 'West Nile'] },
+    'DRC-KAMPALA': { org: 'DRC Uganda, Kampala' },
+    'DRC-WESTNILE': { org: 'DRC Uganda, West Nile' },
+    'DRC-KARAMOJA': { org: 'DRC Uganda, Karamoja' }
   };
   var CLIENT = (qs.get('c') || 'GENERAL').trim().toUpperCase().slice(0, 40);
-  var ORG = (qs.get('o') || CLIENTS[CLIENT] || '').trim().slice(0, 80);
+  var CINFO = CLIENTS[CLIENT] || {};
+  var ORG = (qs.get('o') || CINFO.org || '').trim().slice(0, 80);
+  var LOCS = CINFO.loc || [];
   var DEPTS = (qs.get('d') || '').split('|').map(function (x) { return x.trim(); }).filter(Boolean);
   if (!DEPTS.length) DEPTS = ['Management', 'Programmes', 'Operations', 'Finance and Administration', 'Human Resources', 'Field team', 'Other'];
   var SESSIONS = (qs.get('s') || '').split('|').map(function (x) { return x.trim(); }).filter(Boolean);
@@ -207,7 +212,10 @@
   }
 
   // When a link has no client code, the person types their organisation instead.
-  function orgBlock() { return CLIENT === 'GENERAL' && !ORG ? textBlock('orgTyped', 'Your organisation', { line: true, required: true, ac: 'organization' }) : null; }
+  function orgBlock() {
+    if (LOCS.length) return choiceBlock('location', 'Where are you based?', LOCS);
+    return CLIENT === 'GENERAL' && !ORG ? textBlock('orgTyped', 'Your organisation', { line: true, required: true, ac: 'organization' }) : null;
+  }
 
   /* ---------------- Team Health Check ---------------- */
   function teamStatements(prefix, idx, scale) {
@@ -398,7 +406,7 @@
 
   /* ---------------- submit ---------------- */
   var LABELS = {
-    role: 'Role', dept: 'Department', people: 'People Led', tenure: 'Time In Team', success: 'Day Success Would Be', challenge: 'Biggest Challenge',
+    location: 'Location', role: 'Role', dept: 'Department', people: 'People Led', tenure: 'Time In Team', success: 'Day Success Would Be', challenge: 'Biggest Challenge',
     guess: 'Leader Guess Out Of 10', events: 'Past Year Events', leaderSay: 'What Team Would Say', sensitive: 'Sensitive Matters',
     strength: 'Greatest Strength', holdsBack: 'Holds Team Back', growMe: 'I Want To Grow In', focus: 'Day Should Focus On', mood: 'Team Mood',
     avoid: 'Activities To Avoid', leadersKnew: 'Wish Leadership Knew', facilitator: 'For The Facilitator', name: 'Name', email: 'Email',
@@ -412,7 +420,12 @@
     var body = new URLSearchParams();
     var formName = mode === 'thc' ? (isLeader() ? 'Team Mirror Leaders' : 'Team Mirror') : (mode === 'day' ? 'Day Evaluation' : 'Programme Evaluation');
     body.set('_form', 'assessment'); body.set('_page', location.pathname);
-    body.set('Form', formName); body.set('Client Code', CLIENT); body.set('Organisation', ORG || answers.orgTyped || '');
+    body.set('Form', formName); var code = CLIENT, orgName = ORG || answers.orgTyped || '';
+    if (answers.location) {
+      if (!/REVIEW/.test(CLIENT)) code = CLIENT + '-' + answers.location.toUpperCase().replace(/[^A-Z]/g, '');
+      orgName = (ORG ? ORG + ', ' : '') + answers.location;
+    }
+    body.set('Client Code', code); body.set('Organisation', orgName);
     var report = '', s = null;
     if (mode === 'thc' || mode === 'prog') {
       s = mode === 'thc' ? thcScores() : progScores();
