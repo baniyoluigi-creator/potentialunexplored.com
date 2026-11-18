@@ -47,8 +47,14 @@
 
   /* ---------------- helpers ---------------- */
   var qs = new URLSearchParams(location.search);
-  var CLIENT = (qs.get('c') || 'GENERAL').trim().slice(0, 40);
-  var ORG = (qs.get('o') || '').trim().slice(0, 80);
+  // Clients with short links. The code alone fills in the organisation name.
+  var CLIENTS = {
+    'DRC-REVIEW': 'DRC Uganda',
+    'DRC-KAMPALA': 'DRC Uganda, Kampala',
+    'DRC-WESTNILE': 'DRC Uganda, West Nile'
+  };
+  var CLIENT = (qs.get('c') || 'GENERAL').trim().toUpperCase().slice(0, 40);
+  var ORG = (qs.get('o') || CLIENTS[CLIENT] || '').trim().slice(0, 80);
   var DEPTS = (qs.get('d') || '').split('|').map(function (x) { return x.trim(); }).filter(Boolean);
   if (!DEPTS.length) DEPTS = ['Management', 'Programmes', 'Operations', 'Finance and Administration', 'Human Resources', 'Field team', 'Other'];
   var SESSIONS = (qs.get('s') || '').split('|').map(function (x) { return x.trim(); }).filter(Boolean);
