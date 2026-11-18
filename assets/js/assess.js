@@ -213,7 +213,7 @@
 
   // When a link has no client code, the person types their organisation instead.
   function orgBlock() {
-    if (LOCS.length) return choiceBlock('location', 'Where are you based?', LOCS);
+    if (LOCS.length) return choiceBlock('location', 'Which office do you work from?', LOCS);
     return CLIENT === 'GENERAL' && !ORG ? textBlock('orgTyped', 'Your organisation', { line: true, required: true, ac: 'organization' }) : null;
   }
 
@@ -224,30 +224,30 @@
     ITEMS.forEach(function (it, a) { list.push({ key: prefix + (a * 2 + 1), text: it[idx[0]] }); list.push({ key: prefix + (a * 2 + 2), text: it[idx[1]] }); });
     return mixed(list.length).map(function (i, n) { return scaleBlock(list[i].key, list[i].text, scale, n + 1); });
   }
-  function isLeader() { return /Supervisor|Senior/.test(answers.role || ''); }
+  function isLeader() { return /^Yes/.test(answers.role || ''); }
 
   function buildTHC() {
     mode = 'thc';
     var expect = el('div', { class: 'as-expect' }, '<div><b>1</b><span>Look at your team</span></div><div><b>2</b><span>Look at yourself in it</span></div><div><b>3</b><span>Get your own report</span></div>');
-    var intro = step('Before we begin', 'Thank you for taking a few minutes to help us prepare for your team building day. First you will look at your team, and then at yourself as part of it. There are no right or wrong answers, so please answer as things really are, not as they should be. Your answers are anonymous unless you choose to give your name. It takes about 5 minutes.', [
+    var privacy = el('div', { class: 'as-card soft as-privacy' }, '<b>Your answers are private</b>' +
+      '<p>We do not ask for your name. Only the Team Building Consultant at Potential Unexplored sees individual answers.' + (ORG ? ' ' + esc(ORG.split(',')[0]) + ' management' : ' Management') + ' receives one combined report that shows the overall picture of the team, never what any one person said.</p>' +
+      '<p>Where fewer than five people answer from one group, their answers are joined with a larger group, so no one can be picked out.</p>');
+    var which = el('div', { class: 'as-card as-which' }, '<b>Which team are we asking about?</b>' +
+      '<p>Think of the people you work with most closely, day to day, in your own office' + (LOCS.length ? ' and location' : '') + '. If you lead or supervise others, think of the people who report to you.</p>');
+    var intro = step('Before we begin', 'Thank you for taking a few minutes to help us prepare for your team building day. First you will look at your team, and then at yourself as part of it. There are no right or wrong answers, so please answer as things really are, not as they should be. It takes about 5 minutes.', [
       expect,
+      privacy,
+      which,
       orgBlock(),
-      choiceBlock('role', 'Which best describes your role?', ['Team member', 'Supervisor', 'Senior management']),
-      choiceBlock('dept', 'Your department, unit or team', DEPTS)
+      choiceBlock('role', 'Do you lead or supervise other people at work?', ['No, I am a team member', 'Yes, I lead or supervise others'])
     ], { after: buildRest, kicker: 'Team Building Questionnaire' });
     steps = [intro];
   }
   function buildRest() {
     var lead = isLeader();
-    var about = lead
-      ? step('About your leadership', null, [
-        choiceBlock('people', 'How many people report to you, directly or through others?', ['1 to 5', '6 to 15', '16 to 40', 'More than 40']),
-        choiceBlock('tenure', 'How long have you led this team?', ['Less than 1 year', '1 to 3 years', 'More than 3 years'])])
-      : step('About you', null, [
-        choiceBlock('tenure', 'How long have you been in this team?', ['Less than 1 year', '1 to 3 years', '4 to 6 years', 'More than 6 years'])]);
-    var team = step('Our team', 'How much do you agree with each statement? 1 Strongly disagree, 5 Strongly agree.', teamStatements('T', [1, 2], AGREE), { kicker: 'Part one. Looking at the team' });
+    var team = step('Our team', 'Think of the people you work with most closely, day to day. How much do you agree with each statement? 1 Strongly disagree, 5 Strongly agree.', teamStatements('T', [1, 2], AGREE), { kicker: 'Part one. Looking at the team' });
     var me = step('Me in the team', 'How often is each statement true of you? 1 Never, 5 Always.', teamStatements('M', [3, 4], OFTEN), { kicker: 'Part two. Looking at myself' });
-    var list = [intro0(), about, team, me];
+    var list = [intro0(), team, me];
     if (lead) list.push(step('My leadership', 'How often is each statement true of you? 1 Never, 5 Always.', LEAD.map(function (t, i) { return scaleBlock('L' + (i + 1), t, OFTEN, i + 1); })));
     if (lead) {
       list.push(step('Quick choices', null, [
@@ -256,11 +256,10 @@
         numBlock('guess', 'Out of 10, how do you think your team will rate the overall health of the team?', 1, 10, 'Very poor', 'Excellent'),
         choiceBlock('events', 'Has the team been through any of these in the past year?', ['Restructuring or job cuts', 'Change of leadership', 'A loss or bereavement', 'Serious conflict', 'Many new members', 'Funding cuts', 'None of these'], { multi: true, none: 'None of these' })
       ]));
-      list.push(step('Last step', 'Your email is needed so we can send your report. Everything else here is optional.', [
+      list.push(step('Last step, all optional', 'Comments are read only by the Team Building Consultant. Anything shared with management is summarised in general terms, never quoted in a way that could point to you. ' + 'You can skip this page and go straight to your report.', [
         textBlock('leaderSay', 'If your team described your leadership honestly, what do you think they would say?'),
-        textBlock('sensitive', 'Is there anything sensitive the facilitator should know?'),
-        textBlock('name', 'Your name', { line: true, ac: 'name' }),
-        textBlock('email', 'Your email', { line: true, type: 'email', required: true, ac: 'email' })
+        textBlock('sensitive', 'Is there anything sensitive the consultant should know?'),
+        emailBlock()
       ]));
     } else {
       list.push(step('Quick choices', null, [
@@ -271,16 +270,21 @@
         choiceBlock('mood', 'Which best describes the mood of the team right now?', ['Energised', 'Settled', 'Hopeful', 'Tired', 'Tense', 'Divided']),
         choiceBlock('avoid', 'Are there activities you would rather avoid on the day?', ['None', 'Physical activities', 'Holding hands or close contact', 'Speaking in front of the group', 'Other (say below)'], { multi: true, none: 'None' })
       ]));
-      list.push(step('Last step, all optional', 'You can skip this page and go straight to your report.', [
-        textBlock('leadersKnew', 'Is there something you wish leadership knew, but have never said? Your answer is anonymous.'),
-        textBlock('facilitator', 'Is there anything else the facilitator should know before the day?'),
-        textBlock('name', 'Your name, if you wish to give it', { line: true, ac: 'name' }),
-        textBlock('email', 'Your email, if you would like a copy of your report', { line: true, type: 'email', ac: 'email' })
+      list.push(step('Last step, all optional', 'Comments are read only by the Team Building Consultant. Anything shared with management is summarised in general terms, never quoted in a way that could point to you. ' + 'You can skip this page and go straight to your report.', [
+        textBlock('leadersKnew', 'Is there something you wish leadership knew, but have never said?'),
+        textBlock('facilitator', 'Is there anything else the consultant should know before the day?'),
+        emailBlock()
       ]));
     }
     steps = list;
   }
   function intro0() { return steps[0]; }
+  // Only for someone who wants a copy of their own answers. It is used once to send the copy and never stored.
+  function emailBlock() {
+    var b = textBlock('copyTo', 'Would you like a copy of your own report by email?', { line: true, type: 'email', ac: 'email' });
+    b.appendChild(el('p', { class: 'as-note' }, 'Leave this blank to stay fully anonymous. If you type an email, we use it once to send your copy, and do not keep it.'));
+    return b;
+  }
 
   function thcScores() {
     var s = { team: {}, me: {}, lead: null };
@@ -333,7 +337,7 @@
         '<p><strong>Small steps for this week.</strong></p><ul>' + r[2].map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul></div>';
     });
     if (s.lead !== null) h += '<div class="as-card"><b>A note for leaders</b><p>You guessed your team would rate its health ' + esc(answers.guess) + ' out of 10. Perhaps keep that number in mind, and notice how it compares with your own scores above.</p></div>';
-    h += '<div class="as-card soft"><b>What happens next</b><p>Your answers have gone to the Potential Unexplored team and will help shape your team building day. ' + (answers.email ? 'A copy of your scores is on its way to ' + esc(answers.email) + '. ' : '') + 'If you would like to talk about your report, call or WhatsApp us on +256 775 495 431, or write to info@potentialunexplored.com.</p></div>';
+    h += '<div class="as-card soft"><b>What happens next</b><p>Your answers have gone privately to the Team Building Consultant and will help shape your team building day. Management will only see the combined picture of the team. ' + (answers.copyTo ? 'A copy of your scores is on its way to ' + esc(answers.copyTo) + ', and the address will not be kept. ' : '') + 'If you would like to talk about your report, call or WhatsApp us on +256 775 495 431, or write to info@potentialunexplored.com.</p></div>';
     h += '<p class="as-actions"><button type="button" class="btn btn-primary" onclick="window.print()">Print or save as PDF</button></p>';
     h += '</div>';
     return h;
@@ -343,7 +347,7 @@
   function buildDay() {
     mode = 'day';
     steps = [
-      step('Rate the day', 'Thank you for being part of today. It takes about 3 minutes. 1 Very poor, 5 Excellent.', [orgBlock()].concat([
+      step('Rate the day', 'Thank you for being part of today. No names are needed, and only the Team Building Consultant sees individual answers. It takes about 3 minutes. 1 Very poor, 5 Excellent.', [orgBlock()].concat([
         ['R1', 'Overall, how valuable was today for you?'], ['R2', 'How relevant was today to the real challenges in our team?'], ['R3', 'How would you rate the facilitation?'],
         ['R4', 'How useful were the games and activities?'], ['R5', 'How useful were the reflection sessions after each activity?'],
         ['R6', 'How well was time managed during the day?'], ['R7', 'How would you rate the venue, meals and arrangements?']
@@ -357,8 +361,8 @@
       ]),
       step('Last step, all optional', 'You can skip this page and submit.', [
         textBlock('testimonial', 'In a sentence or two, what would you tell someone about today?'),
-        choiceBlock('quote', 'May we quote what you wrote?', ['Yes, with my name and role', 'Yes, but without my name', 'No'], { optional: true }),
-        textBlock('name', 'Your name and role, if you are happy to be quoted with them', { line: true })
+        choiceBlock('quote', 'May we quote what you wrote?', ['Yes, without my name', 'Yes, with my name and role', 'No'], { optional: true }),
+        textBlock('quoteName', 'Only if you chose to be quoted by name, your name and role', { line: true })
       ])
     ];
   }
@@ -373,7 +377,7 @@
     mode = 'prog';
     var teamPick = [1, 2, 2, 1, 1, 1, 1, 1, 1, 1];
     steps = [
-      step('A short health check', 'A few weeks have passed since your team building day. We would love to know what has changed, and what has not. It takes about 4 minutes. First, how much do you agree? 1 Strongly disagree, 5 Strongly agree.',
+      step('A short health check', 'A few weeks have passed since your team building day. We would love to know what has changed, and what has not. No names are needed, and only the Team Building Consultant sees individual answers. It takes about 4 minutes. First, how much do you agree? 1 Strongly disagree, 5 Strongly agree.',
         [orgBlock()].concat(ITEMS.map(function (it, a) { return scaleBlock('T' + (a + 1), it[teamPick[a]], AGREE, a + 1); }))),
       step('Me in the team', 'How often is each statement true of you now? 1 Never, 5 Always.',
         ITEMS.map(function (it, a) { return scaleBlock('M' + (a + 1), it[3], OFTEN, a + 1); })),
@@ -406,10 +410,10 @@
 
   /* ---------------- submit ---------------- */
   var LABELS = {
-    location: 'Location', role: 'Role', dept: 'Department', people: 'People Led', tenure: 'Time In Team', success: 'Day Success Would Be', challenge: 'Biggest Challenge',
+    location: 'Location', role: 'Role', success: 'Day Success Would Be', challenge: 'Biggest Challenge',
     guess: 'Leader Guess Out Of 10', events: 'Past Year Events', leaderSay: 'What Team Would Say', sensitive: 'Sensitive Matters',
     strength: 'Greatest Strength', holdsBack: 'Holds Team Back', growMe: 'I Want To Grow In', focus: 'Day Should Focus On', mood: 'Team Mood',
-    avoid: 'Activities To Avoid', leadersKnew: 'Wish Leadership Knew', facilitator: 'For The Facilitator', name: 'Name', email: 'Email',
+    avoid: 'Activities To Avoid', leadersKnew: 'Wish Leadership Knew', facilitator: 'For The Consultant', quoteName: 'Name For Quote',
     best: 'Most Valuable Session', workOn: 'I Will Work On', teamCommit: 'Team Should Commit To', better: 'Could Be Better', nps: 'Recommend 0 To 10',
     testimonial: 'Testimonial', quote: 'May Quote', compare: 'Team Compared With Before', teamKept: 'Team Kept Commitments', meKept: 'I Kept My Commitment',
     changeArea: 'Clearest Change', blocks: 'What Got In The Way', support: 'Support Needed', anythingElse: 'Anything Else'
@@ -439,6 +443,7 @@
       if (answers[k] === undefined || answers[k] === '') return;
       body.set(LABELS[k], Array.isArray(answers[k]) ? answers[k].join('; ') : String(answers[k]));
     });
+    if (answers.copyTo) body.set('_copyTo', answers.copyTo);
     ['R', 'T', 'M', 'L'].forEach(function (pre) { for (var i = 1; i <= 18; i++) if (answers[pre + i] !== undefined) body.set(pre + i, String(answers[pre + i])); });
     if (mode === 'thc') report = reportTHC(s); else if (mode === 'day') report = reportDay(); else report = reportProg(s);
     var done = function () { try { localStorage.setItem(doneKey(), new Date().toISOString()); } catch (x) {} root.innerHTML = report; scrollTop(); };

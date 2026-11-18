@@ -92,3 +92,7 @@
 .as-actions .btn{color:#fff!important;background:linear-gradient(135deg,var(--green),var(--green2));border:0;border-radius:99px;padding:12px 26px;font-family:Arial,sans-serif;font-weight:700;cursor:pointer}
 @media (max-width:560px){.as-hero{padding:34px 0 76px}.as-hero h1{font-size:1.8rem}#assessRoot{padding:0 14px}.as-top{margin:0 -14px 16px;padding:14px 14px 10px}.as-q{padding:14px 12px 12px}.as-row{grid-template-columns:105px 1fr}.as-opt small{font-size:.56rem}.as-expect span{font-size:.72rem}.as-dots{display:none}}
 @media print{nav,.mobile-menu,.kitenge-strip,footer,.whatsapp-float,.as-hero,.as-actions,.skip-link{display:none!important}.as-section{margin-top:0}.as-panel{box-shadow:none;border:0}.as-tile,.as-bar,.as-pill,.as-chart{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+.as-privacy{border-left-color:var(--green2);background:linear-gradient(160deg,#F3F8F4,#fff)}
+.as-privacy b::before{content:"\1F512  ";font-size:.85em}
+.as-which{border-left-color:#C9962A;background:#FFFBF0}
+.as-q .as-note{margin-top:6px}

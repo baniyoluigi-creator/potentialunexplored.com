@@ -29,20 +29,13 @@ function assessHandle_(p) {
     var v = p[k].join('; ').slice(0, 2000);
     row[k] = /^\d{1,2}(\.\d)?$/.test(v) ? Number(v) : v;
   });
-  // The same email answering twice for one client is marked, so the repeat can be left out.
-  try {
-    var em = String(row['Email'] || '').toLowerCase().trim();
-    if (em && tab.getLastRow() > 1) {
-      var vals = tab.getDataRange().getValues(), hh = vals[0], cE = hh.indexOf('Email'), cC = hh.indexOf('Client Code');
-      for (var r = 1; r < vals.length; r++) {
-        if (cE >= 0 && String(vals[r][cE]).toLowerCase().trim() === em && String(vals[r][cC]) === String(row['Client Code'])) { row['Possible Repeat'] = 'Yes, this email already answered'; break; }
-      }
-    }
-  } catch (x) {}
+  // Anonymous by design. An email given for a copy is used once, below, and never stored.
+  var copyTo = g('_copyTo');
+  ['Email', 'Name', 'Department', 'People Led', 'Time In Team'].forEach(function (k) { delete row[k]; });
   writeRows_(tab, [row]);
   try { assessSummary_(ss); } catch (x) {}
   try { assessAlert_(formName, row, ss); } catch (x) {}
-  try { assessReportEmail_(formName, row); } catch (x) {}
+  try { assessReportEmail_(formName, row, copyTo); } catch (x) {}
 }
 
 function assessAlert_(formName, row, ss) {
@@ -59,11 +52,11 @@ function assessAlert_(formName, row, ss) {
 }
 
 // A copy of the scores for the person who filled the Team or Leader Health Check.
-function assessReportEmail_(formName, row) {
+function assessReportEmail_(formName, row, copyTo) {
   if (!/Team Mirror|Health Check/.test(formName)) return;
-  var to = String(row['Email'] || '').trim();
+  var to = String(copyTo || '').trim();
   if (!/^[^@\s,;]+@[^@\s,;]+\.[^@\s,;]+$/.test(to)) return;
-  var name = String(row['Name'] || '').replace(/https?:\/\/\S+|www\.\S+|[<>]/g, '').trim().slice(0, 60);
+  var name = '';
   var num = function (v) { var n = Number(v); return n >= 1 && n <= 5 ? n : null; };
   var rows = ASSESS_AREAS.map(function (a) { return [a, num(row['Team: ' + a]), num(row['Me: ' + a])]; });
   var ot = num(row['Overall Team']), om = num(row['Overall Me']), ol = num(row['Overall Leadership']);
@@ -78,7 +71,7 @@ function assessReportEmail_(formName, row) {
   if (ol !== null) plain.push('Your leadership: ' + fmt(ol) + ', ' + assessBand_(ol));
   plain.push('');
   rows.forEach(function (r) { plain.push(r[0] + ': team ' + fmt(r[1]) + ', me ' + fmt(r[2])); });
-  plain.push('', 'Your full report, with reflections and small steps, was shown on the screen when you submitted. If you would like to talk about it, call or WhatsApp us on +256 775 495 431, or reply to this email.', '', 'Warm regards,', 'Potential Unexplored Ltd');
+  plain.push('', 'Your full report, with reflections and small steps, was shown on the screen when you submitted. If you would like to talk about it, call or WhatsApp us on +256 775 495 431, or reply to this email.', '', 'We have not kept your email address. It was used only to send you this copy.', '', 'Warm regards,', 'Potential Unexplored Ltd');
 
   var cell = 'padding:6px 10px;border-bottom:1px solid #eee;';
   var html = '<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.6;color:#222;max-width:560px;">' +
@@ -88,7 +81,7 @@ function assessReportEmail_(formName, row) {
     '<br>How you see yourself in it: <b>' + fmt(om) + '</b>, ' + assessBand_(om) + (ol !== null ? '<br>Your leadership: <b>' + fmt(ol) + '</b>, ' + assessBand_(ol) : '') + '</p>' +
     '<table style="border-collapse:collapse;width:100%;font-size:14px;"><tr style="background:#1B4332;color:#fff;"><th style="' + cell + 'text-align:left;">Area</th><th style="' + cell + '">Our team</th><th style="' + cell + '">Me in the team</th></tr>' +
     rows.map(function (r) { return '<tr><td style="' + cell + '">' + r[0] + '</td><td style="' + cell + 'text-align:center;">' + fmt(r[1]) + '</td><td style="' + cell + 'text-align:center;">' + fmt(r[2]) + '</td></tr>'; }).join('') +
-    '</table><p>Your full report, with reflections and small steps, was shown on the screen when you submitted. If you would like to talk about it, call or WhatsApp us on +256 775 495 431, or reply to this email.</p>' +
+    '</table><p>Your full report, with reflections and small steps, was shown on the screen when you submitted. If you would like to talk about it, call or WhatsApp us on +256 775 495 431, or reply to this email.</p><p style="color:#666;font-size:13px;">We have not kept your email address. It was used only to send you this copy.</p>' +
     '<p>Warm regards,<br>Potential Unexplored Ltd</p></div>';
   MailApp.sendEmail({ to: to, replyTo: PUL_ALERT_EMAIL, name: 'Potential Unexplored Ltd',
     subject: 'Your ' + formName + ' scores', body: plain.join('\n'), htmlBody: html });
