@@ -41,7 +41,7 @@
     'Wellbeing': ['People may be stretched thin, carrying worries from home, or giving little thought to life after this job.', ['When last did you take real rest, without work on your mind?', 'If this job ended a year from now, how ready would you be?'], ['Set one boundary this week that protects time for family or health.', 'Put aside a small amount of money this week, or write down one skill you want to build for the future.']],
     'Leadership Support': ['People may feel they cannot easily reach their leaders, or that good work goes unnoticed.', ['If you are a leader, what would your team say about you when you are not in the room?', 'If you are a team member, what support do you need that you have not asked for?'], ['Leaders, ask one team member this week, what is one thing I could do better?', 'Team members, book a short conversation with your supervisor about what you need.']]
   };
-  var AGREE = ['Strongly disagree', 'Disagree', 'Partly agree', 'Agree', 'Strongly agree'];
+  var AGREE = ['Strongly disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly agree'];
   var OFTEN = ['Never', 'Rarely', 'Sometimes', 'Often', 'Always'];
   var RATE = ['Very poor', 'Poor', 'Fair', 'Good', 'Excellent'];
 
@@ -245,7 +245,7 @@
   }
   function buildRest() {
     var lead = isLeader();
-    var team = step('Our team', 'Think of the people you work with most closely, day to day. How much do you agree with each statement? 1 Strongly disagree, 5 Strongly agree.', teamStatements('T', [1, 2], AGREE), { kicker: 'Part one. Looking at the team' });
+    var team = step('Our team', 'Think of the people you work with most closely, day to day. How much do you agree with each statement? 1 Strongly disagree, 3 Neutral (neither agree nor disagree), 5 Strongly agree.', teamStatements('T', [1, 2], AGREE), { kicker: 'Part one. Looking at the team' });
     var me = step('Me in the team', 'How often is each statement true of you? 1 Never, 5 Always.', teamStatements('M', [3, 4], OFTEN), { kicker: 'Part two. Looking at myself' });
     var list = [intro0(), team, me];
     if (lead) list.push(step('My leadership', 'How often is each statement true of you? 1 Never, 5 Always.', LEAD.map(function (t, i) { return scaleBlock('L' + (i + 1), t, OFTEN, i + 1); })));
@@ -253,7 +253,7 @@
       list.push(step('Quick choices', null, [
         choiceBlock('success', 'What would make the day a real success for you?', ['Stronger trust', 'More open communication', 'Clearer goals', 'Stronger accountability', 'Healing after conflict', 'Better cooperation between units', 'Higher morale', 'Stronger leadership', 'Team bonding and fun'], { max: 3 }),
         choiceBlock('challenge', 'What is the biggest challenge your team faces right now?', AREAS),
-        numBlock('guess', 'Out of 10, how do you think your team will rate the overall health of the team?', 1, 10, 'Very poor', 'Excellent'),
+        numBlock('guess', 'Out of 10, how would you rate the overall health of your team?', 1, 10, 'Very poor', 'Excellent'),
         choiceBlock('events', 'Has the team been through any of these in the past year?', ['Restructuring or job cuts', 'Change of leadership', 'A loss or bereavement', 'Serious conflict', 'Many new members', 'Funding cuts', 'None of these'], { multi: true, none: 'None of these' })
       ]));
       list.push(step('Last step, all optional', 'Comments are read only by the Team Building Consultant. Anything shared with management is summarised in general terms, never quoted in a way that could point to you. ' + 'You can skip this page and go straight to your report.', [
@@ -336,7 +336,7 @@
         '<p><strong>Questions to reflect on.</strong></p><ul>' + r[1].map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' +
         '<p><strong>Small steps for this week.</strong></p><ul>' + r[2].map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul></div>';
     });
-    if (s.lead !== null) h += '<div class="as-card"><b>A note for leaders</b><p>You guessed your team would rate its health ' + esc(answers.guess) + ' out of 10. Perhaps keep that number in mind, and notice how it compares with your own scores above.</p></div>';
+    if (s.lead !== null) h += '<div class="as-card"><b>A note for leaders</b><p>You rated the overall health of your team ' + esc(answers.guess) + ' out of 10. Perhaps keep that number in mind, and notice how it compares with your scores above. It may be worth asking how your team would rate it.</p></div>';
     h += '<div class="as-card soft"><b>What happens next</b><p>Your answers have gone privately to the Team Building Consultant and will help shape your team building day. Management will only see the combined picture of the team. ' + (answers.copyTo ? 'A copy of your scores is on its way to ' + esc(answers.copyTo) + ', and the address will not be kept. ' : '') + 'If you would like to talk about your report, call or WhatsApp us on +256 775 495 431, or write to info@potentialunexplored.com.</p></div>';
     h += '<p class="as-actions"><button type="button" class="btn btn-primary" onclick="window.print()">Print or save as PDF</button></p>';
     h += '</div>';
@@ -377,7 +377,7 @@
     mode = 'prog';
     var teamPick = [1, 2, 2, 1, 1, 1, 1, 1, 1, 1];
     steps = [
-      step('A short health check', 'A few weeks have passed since your team building day. We would love to know what has changed, and what has not. No names are needed, and only the Team Building Consultant sees individual answers. It takes about 4 minutes. First, how much do you agree? 1 Strongly disagree, 5 Strongly agree.',
+      step('A short health check', 'A few weeks have passed since your team building day. We would love to know what has changed, and what has not. No names are needed, and only the Team Building Consultant sees individual answers. It takes about 4 minutes. First, how much do you agree? 1 Strongly disagree, 3 Neutral (neither agree nor disagree), 5 Strongly agree.',
         [orgBlock()].concat(ITEMS.map(function (it, a) { return scaleBlock('T' + (a + 1), it[teamPick[a]], AGREE, a + 1); }))),
       step('Me in the team', 'How often is each statement true of you now? 1 Never, 5 Always.',
         ITEMS.map(function (it, a) { return scaleBlock('M' + (a + 1), it[3], OFTEN, a + 1); })),
@@ -411,7 +411,7 @@
   /* ---------------- submit ---------------- */
   var LABELS = {
     location: 'Location', role: 'Role', success: 'Day Success Would Be', challenge: 'Biggest Challenge',
-    guess: 'Leader Guess Out Of 10', events: 'Past Year Events', leaderSay: 'What Team Would Say', sensitive: 'Sensitive Matters',
+    guess: 'Leader Rating Out Of 10', events: 'Past Year Events', leaderSay: 'What Team Would Say', sensitive: 'Sensitive Matters',
     strength: 'Greatest Strength', holdsBack: 'Holds Team Back', growMe: 'I Want To Grow In', focus: 'Day Should Focus On', mood: 'Team Mood',
     avoid: 'Activities To Avoid', leadersKnew: 'Wish Leadership Knew', facilitator: 'For The Consultant', quoteName: 'Name For Quote',
     best: 'Most Valuable Session', workOn: 'I Will Work On', teamCommit: 'Team Should Commit To', better: 'Could Be Better', nps: 'Recommend 0 To 10',

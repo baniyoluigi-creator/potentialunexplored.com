@@ -143,7 +143,7 @@ function assessSummary_(ss) {
 
   var head = ['Client Code', 'Organisation', 'Members Answered', 'Leaders Answered', 'Members Safe To Report Alone', 'Leaders Safe To Report Alone',
     'Members: Team Overall', 'Members: Me Overall', 'Leaders: Team Overall', 'Leaders: Me Overall', 'Leaders: Leadership',
-    'Gap, Leaders Minus Members', 'Leader Guess Out Of 10', 'Members Say Holds Team Back', 'Members Say Focus On', 'Team Mood']
+    'Gap, Leaders Minus Members', 'Leader Rating Out Of 10', 'Members Say Holds Team Back', 'Members Say Focus On', 'Team Mood']
     .concat(ASSESS_AREAS.map(function (a) { return 'Members Team: ' + a; }))
     .concat(ASSESS_AREAS.map(function (a) { return 'Leaders Team: ' + a; }))
     .concat(['Day Evaluations', 'Day Average', 'Recommend Score (NPS)', 'Follow-ups', 'Follow-up: Team Overall', 'Change Since Before', 'Follow-up Says Team Is Now']);
@@ -151,7 +151,7 @@ function assessSummary_(ss) {
     var c = clients[code];
     var mt = mean(c.m, 'Overall Team'), lt = mean(c.l, 'Overall Team'), pt = mean(c.p, 'Overall Team');
     return [code, c.org, c.m.length, c.l.length, safe(c.m.length), safe(c.l.length), mt, mean(c.m, 'Overall Me'), lt, mean(c.l, 'Overall Me'), mean(c.l, 'Overall Leadership'),
-      (mt !== '' && lt !== '') ? Math.round((lt - mt) * 10) / 10 : '', mean(c.l, 'Leader Guess Out Of 10'),
+      (mt !== '' && lt !== '') ? Math.round((lt - mt) * 10) / 10 : '', mean(c.l, 'Leader Rating Out Of 10'),
       top(c.m, 'Holds Team Back'), top(c.m, 'Day Should Focus On'), top(c.m, 'Team Mood')]
       .concat(ASSESS_AREAS.map(function (a) { return mean(c.m, 'Team: ' + a); }))
       .concat(ASSESS_AREAS.map(function (a) { return mean(c.l, 'Team: ' + a); }))
