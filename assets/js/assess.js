@@ -308,7 +308,7 @@
         '<p><strong>Questions to reflect on.</strong></p><ul>' + r[1].map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' +
         '<p><strong>Small steps for this week.</strong></p><ul>' + r[2].map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul></div>';
     });
-    if (s.lead !== null) h += '<div class="as-card"><b>A mirror for leaders</b><p>You guessed your team would rate its health ' + esc(answers.guess) + ' out of 10. When your team’s answers are in, the facilitator will place your guess next to their real score. The gap, large or small, is often the most useful conversation of the day.</p></div>';
+    if (s.lead !== null) h += '<div class="as-card"><b>A note for leaders</b><p>You guessed your team would rate its health ' + esc(answers.guess) + ' out of 10. Perhaps keep that number in mind, and notice how it compares with your own scores above.</p></div>';
     h += '<div class="as-card soft"><b>What happens next</b><p>Your answers have gone to the Potential Unexplored team and will help shape your team building day. ' + (answers.email ? 'A copy of your scores is on its way to ' + esc(answers.email) + '. ' : '') + 'If you would like to talk about your report, call or WhatsApp us on +256 775 495 431, or write to info@potentialunexplored.com.</p></div>';
     h += '<p class="as-actions"><button type="button" class="btn btn-primary" onclick="window.print()">Print or save as PDF</button></p>';
     h += '</div>';
@@ -377,7 +377,7 @@
     return '<div class="as-report"><p class="eyebrow">Thank you</p><h2 class="as-h">Your follow-up has been received</h2><div class="as-tiles">' +
       '<div class="as-tile ' + bandClass(s.overallTeam) + '"><small>How you see the team now</small><b>' + r1(s.overallTeam) + '</b><span>' + band(s.overallTeam) + '</span></div>' +
       '<div class="as-tile ' + bandClass(s.overallMe) + '"><small>How you see yourself</small><b>' + r1(s.overallMe) + '</b><span>' + band(s.overallMe) + '</span></div></div>' +
-      '<div class="as-card soft"><p>We will compare your team’s answers with those from before the day and share what has changed. To talk to us, call or WhatsApp +256 775 495 431, or write to info@potentialunexplored.com.</p></div></div>';
+      '<div class="as-card soft"><p>Thank you for taking the time. Your answers help us plan the right support for your team. To talk to us, call or WhatsApp +256 775 495 431, or write to info@potentialunexplored.com.</p></div></div>';
   }
 
   /* ---------------- submit ---------------- */
