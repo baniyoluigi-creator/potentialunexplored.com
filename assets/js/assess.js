@@ -398,7 +398,7 @@
   };
   function submit() {
     var btn = root.querySelector('.as-next'); if (btn) { btn.disabled = true; btn.textContent = 'Sending, please wait...'; }
-    var err0 = document.getElementById('asErr'); if (err0) err0.textContent = 'This can take up to 15 seconds. Please keep this page open.';
+    var err0 = document.getElementById('asErr'); if (err0) err0.textContent = 'This can take up to half a minute. Please keep this page open.';
     var body = new URLSearchParams();
     var formName = mode === 'thc' ? (isLeader() ? 'Team Mirror Leaders' : 'Team Mirror') : (mode === 'day' ? 'Day Evaluation' : 'Programme Evaluation');
     body.set('_form', 'assessment'); body.set('_page', location.pathname);
