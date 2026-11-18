@@ -200,6 +200,9 @@
     return true;
   }
 
+  // When a link has no client code, the person types their organisation instead.
+  function orgBlock() { return CLIENT === 'GENERAL' && !ORG ? textBlock('orgTyped', 'Your organisation', { line: true, required: true, ac: 'organization' }) : null; }
+
   /* ---------------- Team Health Check ---------------- */
   function teamStatements(prefix, idx, scale) {
     // idx 1,2 = team statements, 3,4 = self statements
@@ -212,8 +215,9 @@
   function buildTHC() {
     mode = 'thc';
     var expect = el('div', { class: 'as-expect' }, '<div><b>1</b><span>Look at your team</span></div><div><b>2</b><span>Look at yourself in it</span></div><div><b>3</b><span>Get your own report</span></div>');
-    var intro = step('Before we begin', 'Thank you for taking a few minutes to help us prepare for your team building day. First you will look at your team, and then at yourself as part of it. There are no right or wrong answers, so please answer as things really are, not as they should be. Your answers are anonymous unless you choose to give your name. It takes about 9 minutes.', [
+    var intro = step('Before we begin', 'Thank you for taking a few minutes to help us prepare for your team building day. First you will look at your team, and then at yourself as part of it. There are no right or wrong answers, so please answer as things really are, not as they should be. Your answers are anonymous unless you choose to give your name. It takes about 5 minutes.', [
       expect,
+      orgBlock(),
       choiceBlock('role', 'Which best describes your role?', ['Team member', 'Supervisor', 'Senior management']),
       choiceBlock('dept', 'Your department, unit or team', DEPTS)
     ], { after: buildRest, kicker: 'Team Building Questionnaire' });
@@ -325,11 +329,11 @@
   function buildDay() {
     mode = 'day';
     steps = [
-      step('Rate the day', 'Thank you for being part of today. It takes about 3 minutes. 1 Very poor, 5 Excellent.', [
+      step('Rate the day', 'Thank you for being part of today. It takes about 3 minutes. 1 Very poor, 5 Excellent.', [orgBlock()].concat([
         ['R1', 'Overall, how valuable was today for you?'], ['R2', 'How relevant was today to the real challenges in our team?'], ['R3', 'How would you rate the facilitation?'],
         ['R4', 'How useful were the games and activities?'], ['R5', 'How useful were the reflection sessions after each activity?'],
         ['R6', 'How well was time managed during the day?'], ['R7', 'How would you rate the venue, meals and arrangements?']
-      ].map(function (x, i) { return scaleBlock(x[0], x[1], RATE, i + 1); })),
+      ].map(function (x, i) { return scaleBlock(x[0], x[1], RATE, i + 1); }))),
       step('Looking forward', null, [
         choiceBlock('best', 'Which session or activity was most valuable to you?', SESSIONS),
         choiceBlock('workOn', 'Which area will you work on first, starting this week?', AREAS),
@@ -356,7 +360,7 @@
     var teamPick = [1, 2, 2, 1, 1, 1, 1, 1, 1, 1];
     steps = [
       step('A short health check', 'A few weeks have passed since your team building day. We would love to know what has changed, and what has not. It takes about 4 minutes. First, how much do you agree? 1 Strongly disagree, 5 Strongly agree.',
-        ITEMS.map(function (it, a) { return scaleBlock('T' + (a + 1), it[teamPick[a]], AGREE, a + 1); })),
+        [orgBlock()].concat(ITEMS.map(function (it, a) { return scaleBlock('T' + (a + 1), it[teamPick[a]], AGREE, a + 1); }))),
       step('Me in the team', 'How often is each statement true of you now? 1 Never, 5 Always.',
         ITEMS.map(function (it, a) { return scaleBlock('M' + (a + 1), it[3], OFTEN, a + 1); })),
       step('What has changed', null, [
@@ -402,7 +406,7 @@
     var body = new URLSearchParams();
     var formName = mode === 'thc' ? (isLeader() ? 'Team Mirror Leaders' : 'Team Mirror') : (mode === 'day' ? 'Day Evaluation' : 'Programme Evaluation');
     body.set('_form', 'assessment'); body.set('_page', location.pathname);
-    body.set('Form', formName); body.set('Client Code', CLIENT); body.set('Organisation', ORG);
+    body.set('Form', formName); body.set('Client Code', CLIENT); body.set('Organisation', ORG || answers.orgTyped || '');
     var report = '', s = null;
     if (mode === 'thc' || mode === 'prog') {
       s = mode === 'thc' ? thcScores() : progScores();
